@@ -77,8 +77,8 @@ export default function ClientAccueil() {
               />
             </CardHeader>
             <CardContent className="flex-grow p-4">
-              <CardTitle className="text-xl mb-2 text-blue-600 dark:text-blue-400">{voyage.ville_arrive}</CardTitle>
-              <p className="text-gray-600 dark:text-gray-300 mb-2">{voyage.nom}</p>
+              <CardTitle className="text-xl mb-2 text-blue-600 dark:text-blue-400">{voyage.nom}</CardTitle>
+              {/* <p className="text-gray-600 dark:text-gray-300 mb-2">{voyage.ville_arrive}</p> */}
               <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
                 <MapPinIcon className="w-4 h-4 mr-1" />
                 <span>Départ de {voyage.ville_depart}</span>
