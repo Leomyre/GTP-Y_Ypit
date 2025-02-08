@@ -2,62 +2,44 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { CalendarIcon, MapPinIcon } from "lucide-react"
+import { CalendarIcon, MapPinIcon, StarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 
-// Assurez-vous que ce chemin est correct
-import { UrlConfig } from "@/utils/Config"
-
-interface Voyage {
-  id: number
-  nom: string
-  ville_depart: string
-  ville_arrive: string
-  date_depart: string
-  date_arrive_prevu: string
-  prix: number
-  places_disponibles: number
-  image: string
-}
+const voyages = [
+  {
+    id: 1,
+    nom: "Séjour de luxe à Paris",
+    ville_depart: "Lyon",
+    ville_arrive: "Paris",
+    date_depart: "2025-03-15",
+    date_arrive_prevu: "2025-03-20",
+    prix: 1200,
+    places_disponibles: 5,
+    image: "/images/paris.jpg",
+    agence_nom: "Voyages Extraordinaires",
+    etoiles: 5,
+    likes: 80,
+  },
+  {
+    id: 2,
+    nom: "Aventure tropicale en Thaïlande",
+    ville_depart: "Marseille",
+    ville_arrive: "Bangkok",
+    date_depart: "2025-04-10",
+    date_arrive_prevu: "2025-04-25",
+    prix: 2500,
+    places_disponibles: 8,
+    image: "/images/thailande.jpg",
+    agence_nom: "Globe-Trotter",
+    etoiles: 4,
+    likes: 95,
+  },
+]
 
 export default function ClientAccueil() {
-  const [voyages, setVoyages] = useState<Voyage[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setLoading(true)
-    fetch(`${UrlConfig.apiBaseUrl}/tour/voyages/`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des voyages")
-        }
-        return response.json()
-      })
-      .then((data) => {
-        setVoyages(data)
-        setLoading(false)
-      })
-      .catch((error) => {
-        console.error("Error fetching voyages:", error)
-        setError(error.message)
-        setLoading(false)
-      })
-  }, [])
-
-  if (loading) {
-    return <LoadingSkeleton />
-  }
-
-  if (error) {
-    return <ErrorMessage message={error} />
-  }
-
   return (
     <>
       <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">Destinations de Rêve</h1>
@@ -65,11 +47,14 @@ export default function ClientAccueil() {
         {voyages.map((voyage) => (
           <Card
             key={voyage.id}
-            className="flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 relative"
           >
+            <div className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full px-2 py-1 text-sm font-semibold text-blue-600 dark:text-blue-400 shadow">
+              {voyage.likes} ❤️
+            </div>
             <CardHeader className="p-0">
               <Image
-                src={voyage.image || "/placeholder.svg"}
+                src={voyage.image}
                 alt={voyage.ville_arrive}
                 width={400}
                 height={200}
@@ -77,15 +62,22 @@ export default function ClientAccueil() {
               />
             </CardHeader>
             <CardContent className="flex-grow p-4">
-              <CardTitle className="text-xl mb-2 text-blue-600 dark:text-blue-400">{voyage.nom}</CardTitle>
-              {/* <p className="text-gray-600 dark:text-gray-300 mb-2">{voyage.ville_arrive}</p> */}
+              <CardTitle className="text-xl mb-2 text-blue-600 dark:text-blue-400">{voyage.ville_arrive}</CardTitle>
+              <p className="text-gray-600 dark:text-gray-300 mb-2">{voyage.nom}</p>
               <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
                 <MapPinIcon className="w-4 h-4 mr-1" />
                 <span>Départ de {voyage.ville_depart}</span>
               </div>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
                 <CalendarIcon className="w-4 h-4 mr-1" />
                 <span>{format(new Date(voyage.date_depart), "d MMMM yyyy", { locale: fr })}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 dark:text-gray-300">{voyage.agence_nom}</span>
+                <div className="flex items-center">
+                  <StarIcon className="w-4 h-4 text-yellow-400 mr-1" />
+                  <span className="font-medium">{voyage.etoiles}/5</span>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800">
@@ -102,38 +94,3 @@ export default function ClientAccueil() {
     </>
   )
 }
-
-function LoadingSkeleton() {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {[...Array(6)].map((_, index) => (
-        <Card key={index} className="flex flex-col overflow-hidden">
-          <CardHeader className="p-0">
-            <Skeleton className="w-full h-48" />
-          </CardHeader>
-          <CardContent className="flex-grow p-4">
-            <Skeleton className="h-6 w-3/4 mb-2" />
-            <Skeleton className="h-4 w-1/2 mb-2" />
-            <Skeleton className="h-4 w-2/3 mb-1" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardContent>
-          <CardFooter className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800">
-            <Skeleton className="h-6 w-1/4" />
-            <Skeleton className="h-10 w-1/3" />
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
-  )
-}
-
-function ErrorMessage({ message }: { message: string }) {
-  return (
-    <div className="text-center py-10">
-      <h2 className="text-2xl font-bold text-red-600 mb-4">Erreur</h2>
-      <p className="text-gray-600 dark:text-gray-400">{message}</p>
-      <p className="mt-4">Veuillez réessayer plus tard ou contacter le support si le problème persiste.</p>
-    </div>
-  )
-}
-
