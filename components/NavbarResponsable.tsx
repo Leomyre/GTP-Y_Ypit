@@ -1,94 +1,89 @@
 "use client"
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useState } from "react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Home, Calendar, Map, Users, CreditCard, Menu, X, Airplay } from "lucide-react"
+import InfoTour from "./InfoTour"
 
 const navItems = [
-  { name: 'Tableau de bord', href: '/responsable/tour/dashboard' },
-  { name: 'Réservations', href: '/responsable/tour/reservations' },
-  { name: 'Destinations', href: '/responsable/tour/destinations' },
-  { name: 'Clients', href: '/responsable/tour/clients' },
-  { name: 'Finances', href: '/responsable/tour/finances' },
+  { name: "Tableau de bord", href: "/responsable/tour/dashboard", icon: Home },
+  { name: "Réservations", href: "/responsable/tour/reservations", icon: Calendar },
+  { name: "Voyages", href: "/responsable/tour/voyages", icon: Airplay },
+  { name: "Destinations", href: "/responsable/tour/destinations", icon: Map },
+  { name: "Clients", href: "/responsable/tour/clients", icon: Users },
+  { name: "Finances", href: "/responsable/tour/finances", icon: CreditCard },
 ]
 
 const NavbarResponsable = () => {
   const pathname = usePathname()
   const [showNav, setShowNav] = useState(false)
 
+  const NavLinks = () => (
+    <ul className="space-y-2">
+      {navItems.map((item) => (
+        <li key={item.name}>
+          <Link href={item.href} onClick={() => setShowNav(false)}>
+            <span
+              className={`flex items-center px-4 py-2 text-sm rounded-md transition-colors ${
+                pathname === item.href
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              <item.icon className="w-5 h-5 mr-3" />
+              {item.name}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+
   return (
-    <div className="flex min-h-screen">
-      {/* Navigation Desktop (Toujours visible) */}
-      <nav className="hidden sm:flex sm:flex-col w-64 bg-white shadow-lg fixed h-full p-4">
-        <h1 className="text-2xl font-bold text-gray-800">Agence de Voyage</h1>
-        <ul className="space-y-2 py-4">
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <Link href={item.href}>
-                <span className={`block px-4 py-2 text-sm ${
-                  pathname === item.href
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-700 hover:bg-gray-200'
-                }`}>
-                  {item.name}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Navigation Desktop */}
+      <nav className="hidden sm:flex sm:flex-col w-64 bg-white dark:bg-gray-800 shadow-lg fixed h-full p-4">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200"><InfoTour field="name" /></h1>
+          <ThemeToggle />
+        </div>
+        <NavLinks />
       </nav>
 
-      {/* Contenu principal (décalé à droite sur desktop) */}
+      {/* Contenu principal */}
       <main className="flex-1 sm:ml-64">
-        {/* Bouton Hamburger (Visible en mobile uniquement) */}
-        <div className="sm:hidden flex justify-between items-center p-4 bg-white shadow-md fixed w-full top-0 z-50">
-          <h1 className="text-xl font-bold text-gray-800">Agence de Voyage</h1>
-          <button
-            className="text-gray-700 focus:outline-none"
-            onClick={() => setShowNav(true)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-          </button>
+        {/* Header Mobile */}
+        <div className="sm:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md fixed w-full top-0 z-50">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200"><InfoTour field="name" /></h1>
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
+            <button className="text-gray-700 dark:text-gray-200 focus:outline-none" onClick={() => setShowNav(true)}>
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
         {/* Menu Mobile (Overlay + Barre latérale) */}
         {showNav && (
-          <div className="fixed inset-0 z-50">
-            {/* Fond semi-transparent */}
+          <div className="fixed inset-0 z-50 sm:hidden">
             <div
-              className="fixed inset-0 bg-black bg-opacity-50"
-              onClick={() => setShowNav(false)} // Ferme le menu en cliquant à l'extérieur
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+              onClick={() => setShowNav(false)}
             ></div>
 
-            {/* Menu latéral mobile */}
-            <nav className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg p-4 z-50">
-              <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-gray-800">Menu</h1>
+            <nav className="fixed right-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 shadow-lg p-4 transform transition-transform duration-200 ease-in-out">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Menu</h1>
                 <button
-                  className="text-gray-700 focus:outline-none"
+                  className="text-gray-700 dark:text-gray-200 focus:outline-none"
                   onClick={() => setShowNav(false)}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
+                  <X className="w-6 h-6" />
                 </button>
               </div>
-              <ul className="space-y-2">
-                {navItems.map((item) => (
-                  <li key={item.name}>
-                    <Link href={item.href} onClick={() => setShowNav(false)}>
-                      <span className={`block px-4 py-2 text-sm ${
-                        pathname === item.href
-                          ? 'bg-blue-500 text-white'
-                          : 'text-gray-700 hover:bg-gray-200'
-                      }`}>
-                        {item.name}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <NavLinks />
             </nav>
           </div>
         )}
@@ -98,3 +93,4 @@ const NavbarResponsable = () => {
 }
 
 export default NavbarResponsable
+
