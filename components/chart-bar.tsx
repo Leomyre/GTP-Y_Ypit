@@ -31,7 +31,7 @@ export function ChartBar() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Chiffre d'affaires par destination</CardTitle>
+        <CardTitle>Chiffre d&apos;affaires par destination</CardTitle>
         <CardDescription>Top 6 des destinations les plus populaires</CardDescription>
       </CardHeader>
       <CardContent>

@@ -4,13 +4,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Home, Calendar, Map, Users, CreditCard, Menu, X, Airplay } from "lucide-react"
-import InfoTour from "./InfoTour"
+import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, Route } from "lucide-react"
 
 const navItems = [
   { name: "Tableau de bord", href: "/responsable/tour/dashboard", icon: Home },
-  { name: "Réservations", href: "/responsable/tour/reservations", icon: Calendar },
-  { name: "Voyages", href: "/responsable/tour/voyages", icon: Airplay },
+  { name: "Voyages", href: "/responsable/tour/voyages", icon: Plane },
+  { name: "Trajets", href: "/responsable/tour/trajets", icon: Route },
+  { name: "Réservations", href: "/responsable/tour/reservations", icon: BookOpen },
   { name: "Destinations", href: "/responsable/tour/destinations", icon: Map },
   { name: "Clients", href: "/responsable/tour/clients", icon: Users },
   { name: "Finances", href: "/responsable/tour/finances", icon: CreditCard },
@@ -46,7 +46,7 @@ const NavbarResponsable = () => {
       {/* Navigation Desktop */}
       <nav className="hidden sm:flex sm:flex-col w-64 bg-white dark:bg-gray-800 shadow-lg fixed h-full p-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200"><InfoTour field="name" /></h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Agence de Voyage</h1>
           <ThemeToggle />
         </div>
         <NavLinks />
@@ -56,7 +56,7 @@ const NavbarResponsable = () => {
       <main className="flex-1 sm:ml-64">
         {/* Header Mobile */}
         <div className="sm:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md fixed w-full top-0 z-50">
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200"><InfoTour field="name" /></h1>
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">Agence de Voyage</h1>
           <div className="flex items-center space-x-2">
             <ThemeToggle />
             <button className="text-gray-700 dark:text-gray-200 focus:outline-none" onClick={() => setShowNav(true)}>

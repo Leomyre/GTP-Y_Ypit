@@ -1,147 +1,106 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import ReservationChart from "@/components/ReservationChart"
-import { AIInsights } from "@/components/AIInsights"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
+// Données statiques pour l'exemple
 const reservations = [
-  {
-    id: 1,
-    client: "Alice Dupont",
-    destination: "Paris",
-    dateDepart: "2024-07-15",
-    dateFin: "2024-07-22",
-    statut: "Confirmée",
-    montant: "1200€",
-  },
-  {
-    id: 2,
-    client: "Bob Martin",
-    destination: "Rome",
-    dateDepart: "2024-08-01",
-    dateFin: "2024-08-08",
-    statut: "En attente",
-    montant: "950€",
-  },
-  {
-    id: 3,
-    client: "Claire Leroy",
-    destination: "Barcelone",
-    dateDepart: "2024-06-20",
-    dateFin: "2024-06-27",
-    statut: "Payée",
-    montant: "850€",
-  },
-  {
-    id: 4,
-    client: "David Moreau",
-    destination: "Amsterdam",
-    dateDepart: "2024-09-05",
-    dateFin: "2024-09-12",
-    statut: "Confirmée",
-    montant: "1100€",
-  },
-  {
-    id: 5,
-    client: "Emma Petit",
-    destination: "Prague",
-    dateDepart: "2024-07-30",
-    dateFin: "2024-08-06",
-    statut: "Annulée",
-    montant: "750€",
-  },
+  { id: 1, voyage: "Paris Romantique", client: "Alice Dupont", date: "2025-06-15", statut: "Confirmé", montant: 1200 },
+  { id: 2, voyage: "Aventure à Bali", client: "Bob Martin", date: "2025-07-01", statut: "En attente", montant: 1800 },
+  { id: 3, voyage: "New York City Break", client: "Claire Leroy", date: "2025-08-10", statut: "Payé", montant: 1500 },
+  { id: 4, voyage: "Safari Kenyan", client: "David Moreau", date: "2025-09-05", statut: "Confirmé", montant: 2200 },
+  { id: 5, voyage: "Tokyo Découverte", client: "Emma Petit", date: "2025-10-20", statut: "En attente", montant: 2000 },
 ]
 
-const stats = [
-  { title: "Réservations Totales", value: "152" },
-  { title: "Réservations ce Mois", value: "28" },
-  { title: "Taux d'Occupation", value: "76%" },
-  { title: "Revenu Moyen par Réservation", value: "970€" },
+const voyages = [
+  "Tous",
+  "Paris Romantique",
+  "Aventure à Bali",
+  "New York City Break",
+  "Safari Kenyan",
+  "Tokyo Découverte",
 ]
 
-const chartData = [
-  { name: "Jan", reservations: 20 },
-  { name: "Fév", reservations: 25 },
-  { name: "Mar", reservations: 30 },
-  { name: "Avr", reservations: 22 },
-  { name: "Mai", reservations: 28 },
-  { name: "Juin", reservations: 35 },
+const graphData = [
+  { name: "Paris Romantique", reservations: 15 },
+  { name: "Aventure à Bali", reservations: 12 },
+  { name: "New York City Break", reservations: 20 },
+  { name: "Safari Kenyan", reservations: 8 },
+  { name: "Tokyo Découverte", reservations: 18 },
 ]
 
 export default function ReservationsPage() {
+  const [selectedVoyage, setSelectedVoyage] = useState("Tous")
+
+  const filteredReservations =
+    selectedVoyage === "Tous" ? reservations : reservations.filter((res) => res.voyage === selectedVoyage)
+
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold">Réservations</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Réservations par Voyage</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={graphData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="reservations" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Réservations Récentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>Date de Départ</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Montant</TableHead>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Liste des Réservations</CardTitle>
+          <Select value={selectedVoyage} onValueChange={setSelectedVoyage}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sélectionner un voyage" />
+            </SelectTrigger>
+            <SelectContent>
+              {voyages.map((voyage) => (
+                <SelectItem key={voyage} value={voyage}>
+                  {voyage}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Voyage</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Montant</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredReservations.map((reservation) => (
+                <TableRow key={reservation.id}>
+                  <TableCell>{reservation.voyage}</TableCell>
+                  <TableCell>{reservation.client}</TableCell>
+                  <TableCell>{reservation.date}</TableCell>
+                  <TableCell>{reservation.statut}</TableCell>
+                  <TableCell>{reservation.montant} €</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reservations.map((reservation) => (
-                  <TableRow key={reservation.id}>
-                    <TableCell>{reservation.client}</TableCell>
-                    <TableCell>{reservation.destination}</TableCell>
-                    <TableCell>{reservation.dateDepart}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          reservation.statut === "Confirmée"
-                            ? "default"
-                            : reservation.statut === "En attente"
-                              ? "secondary"
-                              : reservation.statut === "Payée"
-                                ? "success"
-                                : "destructive"
-                        }
-                      >
-                        {reservation.statut}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{reservation.montant}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Évolution des Réservations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ReservationChart data={chartData} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <AIInsights data={{ reservations, stats, chartData }} page="reservations" />
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }
