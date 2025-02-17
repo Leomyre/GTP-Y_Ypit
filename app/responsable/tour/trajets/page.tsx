@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Plus, Bus, Car, Bike, FootprintsIcon as Walking } from "lucide-react"
+import { Plus, Bus, Car, Bike, FootprintsIcon as Walking, Edit } from "lucide-react"
+import { DeleteConfirmation } from "@/components/DeleteConfirmation"
 
 // Données statiques pour l'exemple
 const voyages = [
@@ -69,8 +71,15 @@ const getMoyenIcon = (moyen: string) => {
 
 export default function TrajetsPage() {
   const [selectedVoyage, setSelectedVoyage] = useState(voyages[0].id.toString())
+  const router = useRouter()
 
   const currentVoyage = voyages.find((v) => v.id.toString() === selectedVoyage)
+
+  const handleDelete = (trajetId: number) => {
+    // Logique de suppression à implémenter
+    console.log(`Supprimer le trajet ${trajetId}`)
+    // Après suppression, vous devriez rafraîchir les données
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -89,7 +98,7 @@ export default function TrajetsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Button>
+        <Button onClick={() => router.push(`/responsable/tour/trajets/ajouter?voyageId=${selectedVoyage}`)}>
           <Plus className="mr-2 h-4 w-4" /> Ajouter un trajet
         </Button>
       </div>
@@ -103,7 +112,22 @@ export default function TrajetsPage() {
             <Accordion type="single" collapsible className="w-full">
               {currentVoyage.trajets.map((trajet) => (
                 <AccordionItem key={trajet.id} value={trajet.id.toString()}>
-                  <AccordionTrigger>{trajet.nom}</AccordionTrigger>
+                  <div className="flex items-center justify-between">
+                    <AccordionTrigger className="flex-grow">{trajet.nom}</AccordionTrigger>
+                    <div className="flex space-x-2 px-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => router.push(`/responsable/tour/trajets/${trajet.id}/modifier`)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <DeleteConfirmation
+                        onConfirm={() => handleDelete(trajet.id)}
+                        itemName={`le trajet "${trajet.nom}"`}
+                      />
+                    </div>
+                  </div>
                   <AccordionContent>
                     <Table>
                       <TableHeader>

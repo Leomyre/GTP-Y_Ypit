@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // Données statiques pour l'exemple
 const voyages = [
@@ -60,6 +62,7 @@ const voyages = [
 export default function VoyagesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null)
+  const router = useRouter()
 
   const filteredVoyages = voyages.filter(
     (voyage) =>
@@ -102,9 +105,11 @@ export default function VoyagesPage() {
             className="pl-10"
           />
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un voyage
-        </Button>
+        <Link href="/responsable/tour/voyages/ajouter">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Ajouter un voyage
+          </Button>
+        </Link>
       </div>
 
       <Card>
@@ -158,8 +163,19 @@ export default function VoyagesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Voir les détails</DropdownMenuItem>
-                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href={`/responsable/tour/voyages/${voyage.id}`}>Voir les détails</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => router.push(`/responsable/tour/voyages/${voyage.id}/modifier`)}
+                        >
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => router.push(`/responsable/tour/trajets/ajouter?voyageId=${voyage.id}`)}
+                        >
+                          Ajouter un trajet
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -4,12 +4,7 @@ import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 const chartData = [
   { destination: "Paris", ca: 186000 },
@@ -31,7 +26,7 @@ export function ChartBar() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Chiffre d&apos;affaires par destination</CardTitle>
+        <CardTitle>Chiffre d&aposaffaires par destination</CardTitle>
         <CardDescription>Top 6 des destinations les plus populaires</CardDescription>
       </CardHeader>
       <CardContent>

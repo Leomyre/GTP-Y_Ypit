@@ -1,100 +1,78 @@
 "use client"
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
 
-const navItems = [
-  { name: 'Acceuil' , href: '/client/acceuil' },
-  { name: 'Réservations', href: '/client/tour/reservations' },
-  { name: 'Destinations', href: '/client/tour/destinations' },
-  { name: 'Clients', href: '/client/tour/clients' },
-  { name: 'Finances', href: '/client/tour/finances' },
-]
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Home, Compass, Star, User } from "lucide-react"
 
 const NavbarClients = () => {
   const pathname = usePathname()
-  const [showNav, setShowNav] = useState(false)
+
+  const navItems = [
+    { name: "Accueil", href: "/clients/acceuil", icon: Home },
+    { name: "Voyages Populaires", href: "/clients/voyages-populaires", icon: Compass },
+    { name: "Voyages Recommandés", href: "/clients/voyages-recommandes", icon: Star },
+    { name: "Mon Profil", href: "/clients/profil", icon: User },
+  ]
 
   return (
-    <div className="flex min-h-screen">
-      {/* Navigation Desktop (Toujours visible) */}
-      <nav className="hidden sm:flex sm:flex-col w-64 bg-white shadow-lg fixed h-full p-4">
-        <h1 className="text-2xl font-bold text-gray-800">Agence de Voyage</h1>
-        <ul className="space-y-2 py-4">
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <Link href={item.href}>
-                <span className={`block px-4 py-2 text-sm ${
+    <nav className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/clients/accueil" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            Agence de Voyage
+          </Link>
+          <div className="hidden md:flex items-center space-x-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
                   pathname === item.href
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-700 hover:bg-gray-200'
-                }`}>
-                  {item.name}
-                </span>
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-100"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                }`}
+              >
+                <item.icon className="w-4 h-4 mr-2" />
+                {item.name}
               </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Contenu principal (décalé à droite sur desktop) */}
-      <main className="flex-1 sm:ml-64">
-        {/* Bouton Hamburger (Visible en mobile uniquement) */}
-        <div className="sm:hidden flex justify-between items-center p-4 bg-white shadow-md fixed w-full top-0 z-50">
-          <h1 className="text-xl font-bold text-gray-800">Agence de Voyage</h1>
-          <button
-            className="text-gray-700 focus:outline-none"
-            onClick={() => setShowNav(true)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-          </button>
-        </div>
-
-        {/* Menu Mobile (Overlay + Barre latérale) */}
-        {showNav && (
-          <div className="fixed inset-0 z-50">
-            {/* Fond semi-transparent */}
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50"
-              onClick={() => setShowNav(false)} // Ferme le menu en cliquant à l'extérieur
-            ></div>
-
-            {/* Menu latéral mobile */}
-            <nav className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg p-4 z-50">
-              <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-gray-800">Menu</h1>
-                <button
-                  className="text-gray-700 focus:outline-none"
-                  onClick={() => setShowNav(false)}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-              <ul className="space-y-2">
-                {navItems.map((item) => (
-                  <li key={item.name}>
-                    <Link href={item.href} onClick={() => setShowNav(false)}>
-                      <span className={`block px-4 py-2 text-sm ${
-                        pathname === item.href
-                          ? 'bg-blue-500 text-white'
-                          : 'text-gray-700 hover:bg-gray-200'
-                      }`}>
-                        {item.name}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            ))}
           </div>
-        )}
-      </main>
-    </div>
+          <div className="flex items-center">
+            <ThemeToggle />
+            <div className="md:hidden ml-4">
+              <Button variant="outline" size="icon">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Mobile menu, show/hide based on menu state */}
+      <div className="md:hidden">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                pathname === item.href
+                  ? "bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-100"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              }`}
+            >
+              <item.icon className="w-4 h-4 mr-2" />
+              {item.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
   )
 }
 
 export default NavbarClients
+

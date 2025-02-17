@@ -85,7 +85,7 @@ export default function ClientAccueil() {
                 {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(voyage.prix)}
               </span>
               <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Link href={`/client/voyage/${voyage.id}`}>Voir les détails</Link>
+                <Link href={`/clients/voyage/${voyage.id}`}>Voir les détails</Link>
               </Button>
             </CardFooter>
           </Card>
