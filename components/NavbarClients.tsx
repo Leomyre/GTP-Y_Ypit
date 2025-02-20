@@ -10,10 +10,10 @@ const NavbarClients = () => {
   const pathname = usePathname()
 
   const navItems = [
-    { name: "Accueil", href: "/clients/acceuil", icon: Home },
-    { name: "Voyages Populaires", href: "/clients/voyages-populaires", icon: Compass },
-    { name: "Voyages Recommandés", href: "/clients/voyages-recommandes", icon: Star },
-    { name: "Mon Profil", href: "/clients/profil", icon: User },
+    { name: "Accueil", href: "/client/acceuil", icon: Home },
+    { name: "Voyages Populaires", href: "/client/voyages-populaires", icon: Compass },
+    { name: "Voyages Recommandés", href: "/client/voyages-recommandes", icon: Star },
+    { name: "Mon Profil", href: "/client/profil", icon: User },
   ]
 
   return (

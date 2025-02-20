@@ -55,8 +55,8 @@ export default function VoyageDetails() {
   }
 
   return (
-    <div className="space-y-6">
-      <Button variant="outline" onClick={() => router.back()}>
+    <div className="space-y-4 sm:space-y-6">
+      <Button variant="outline" onClick={() => router.back()} className="mb-4">
         Retour
       </Button>
 
@@ -66,53 +66,57 @@ export default function VoyageDetails() {
           alt={voyage.nom}
           width={1200}
           height={400}
-          className="w-full h-64 object-cover"
+          className="w-full h-48 sm:h-64 object-cover"
         />
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
-              <CardTitle className="text-2xl">{voyage.nom}</CardTitle>
-              <p className="text-muted-foreground">{voyage.agence_nom}</p>
+              <CardTitle className="text-xl sm:text-2xl">{voyage.nom}</CardTitle>
+              <p className="text-sm sm:text-base text-muted-foreground">{voyage.agence_nom}</p>
             </div>
-            <div className="flex items-center">
-              <StarIcon className="text-yellow-400 mr-1" />
-              <span>{voyage.etoiles}/5</span>
-              <span className="ml-2">({voyage.likes} avis)</span>
+            <div className="flex items-center mt-2 sm:mt-0">
+              <StarIcon className="text-yellow-400 w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+              <span className="text-sm sm:text-base">{voyage.etoiles}/5</span>
+              <span className="text-sm sm:text-base ml-2">({voyage.likes} avis)</span>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="flex items-center">
-              <MapPinIcon className="mr-2" />
-              <span>Départ de {voyage.ville_depart}</span>
+              <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">Départ de {voyage.ville_depart}</span>
             </div>
             <div className="flex items-center">
-              <CalendarIcon className="mr-2" />
-              <span>{format(new Date(voyage.date_depart), "d MMMM yyyy", { locale: fr })}</span>
+              <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">
+                {format(new Date(voyage.date_depart), "d MMMM yyyy", { locale: fr })}
+              </span>
             </div>
             <div className="flex items-center">
-              <Clock className="mr-2" />
-              <span>{format(new Date(voyage.date_arrive_prevu), "d MMMM yyyy", { locale: fr })}</span>
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">
+                {format(new Date(voyage.date_arrive_prevu), "d MMMM yyyy", { locale: fr })}
+              </span>
             </div>
             <div className="flex items-center">
-              <Users className="mr-2" />
-              <span>{voyage.places_disponibles} places disponibles</span>
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">{voyage.places_disponibles} places disponibles</span>
             </div>
             <div className="flex items-center">
-              <DollarSign className="mr-2" />
-              <span>{voyage.prix} €</span>
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">{voyage.prix} €</span>
             </div>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Description</h3>
-            <p>{voyage.description}</p>
+            <h3 className="font-semibold mb-2 text-base sm:text-lg">Description</h3>
+            <p className="text-sm sm:text-base">{voyage.description}</p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Ce qui est inclus</h3>
-            <ul className="list-disc list-inside">
+            <h3 className="font-semibold mb-2 text-base sm:text-lg">Ce qui est inclus</h3>
+            <ul className="list-disc list-inside text-sm sm:text-base">
               {voyage.inclus.map((item: string, index: number) => (
                 <li key={index}>{item}</li>
               ))}
@@ -120,8 +124,8 @@ export default function VoyageDetails() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Programme</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-2 text-base sm:text-lg">Programme</h3>
+            <ul className="space-y-2 text-sm sm:text-base">
               {voyage.programme.map((jour: { jour: number; activite: string }) => (
                 <li key={jour.jour} className="flex">
                   <span className="font-semibold mr-2">Jour {jour.jour}:</span>
