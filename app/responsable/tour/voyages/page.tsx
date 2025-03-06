@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 // Données statiques pour l'exemple
 const voyages = [
@@ -62,7 +61,6 @@ const voyages = [
 export default function VoyagesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null)
-  const router = useRouter()
 
   const filteredVoyages = voyages.filter(
     (voyage) =>
@@ -166,15 +164,13 @@ export default function VoyagesPage() {
                         <DropdownMenuItem>
                           <Link href={`/responsable/tour/voyages/${voyage.id}`}>Voir les détails</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => router.push(`/responsable/tour/voyages/${voyage.id}/modifier`)}
-                        >
-                          Modifier
+                        <DropdownMenuItem>
+                          <Link href={`/responsable/tour/voyages/${voyage.id}/modifier`}>Modifier</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => router.push(`/responsable/tour/trajets/ajouter?voyageId=${voyage.id}`)}
-                        >
-                          Ajouter un trajet
+                        <DropdownMenuItem>
+                          <Link href={`/responsable/tour/trajets/ajouter?voyageId=${voyage.id}`}>
+                            Ajouter un trajet
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>

@@ -4,7 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, Route } from "lucide-react"
+import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, Route, User, Bell } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 const navItems = [
   { name: "Tableau de bord", href: "/responsable/tour/dashboard", icon: Home },
@@ -14,6 +15,8 @@ const navItems = [
   { name: "Destinations", href: "/responsable/tour/destinations", icon: Map },
   { name: "Clients", href: "/responsable/tour/clients", icon: Users },
   { name: "Finances", href: "/responsable/tour/finances", icon: CreditCard },
+  { name: "Notifications", href: "/responsable/tour/notifications", icon: Bell, badge: 5 },
+  { name: "Profil", href: "/responsable/tour/profil", icon: User },
 ]
 
 const NavbarResponsable = () => {
@@ -34,6 +37,7 @@ const NavbarResponsable = () => {
             >
               <item.icon className="w-5 h-5 mr-3" />
               {item.name}
+              {item.badge && <Badge className="ml-2 bg-red-500 hover:bg-red-600">{item.badge}</Badge>}
             </span>
           </Link>
         </li>

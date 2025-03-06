@@ -37,7 +37,7 @@ export function VoyageCard({ voyage }: VoyageCardProps) {
         />
       </CardHeader>
       <CardContent className="flex-grow p-3 sm:p-4">
-        <CardTitle className="text-lg sm:text-xl mb-2 text-blue-600 dark:text-blue-400">
+        <CardTitle className="text-lg sm:text-xl mb-2 text-teal-600 dark:text-teal-400">
           {voyage.ville_arrive}
         </CardTitle>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-2">{voyage.nom}</p>
@@ -58,10 +58,10 @@ export function VoyageCard({ voyage }: VoyageCardProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center p-3 sm:p-4 bg-gray-50 dark:bg-gray-800">
-        <span className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
+        <span className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400">
           {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(voyage.prix)}
         </span>
-        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm">
+        <Button asChild className="bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm">
           <Link href={`/client/voyage/${voyage.id}`}>Voir les détails</Link>
         </Button>
       </CardFooter>

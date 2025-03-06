@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft } from "lucide-react"
+import { FormSkeleton } from "@/components/skeletons/form-skeleton"
 
-// Données statiques pour l'exemple
+// Données statiques pour l'exemple (à remplacer par un appel API réel)
 const voyages = [
   {
     id: "1",
@@ -38,11 +39,19 @@ export default function ModifierVoyage() {
   const router = useRouter()
   const { id } = useParams()
   const [voyage, setVoyage] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Simuler une requête API
-    const fetchedVoyage = voyages.find((v) => v.id === id)
-    setVoyage(fetchedVoyage)
+    const fetchData = async () => {
+      // Simuler un délai de chargement
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const fetchedVoyage = voyages.find((v) => v.id === id)
+      setVoyage(fetchedVoyage)
+      setLoading(false)
+    }
+
+    fetchData()
   }, [id])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,8 +61,12 @@ export default function ModifierVoyage() {
     router.push("/responsable/tour/voyages")
   }
 
+  if (loading) {
+    return <FormSkeleton />
+  }
+
   if (!voyage) {
-    return <div>Chargement...</div>
+    return <div>Voyage non trouvé</div>
   }
 
   return (

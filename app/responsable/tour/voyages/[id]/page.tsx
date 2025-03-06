@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Edit, Trash, Plus } from "lucide-react"
+import { VoyageSkeleton } from "@/components/skeletons/voyage-skeleton"
 
 // Données statiques pour l'exemple
 const voyages = [
@@ -34,15 +35,27 @@ export default function DetailsVoyage() {
   const router = useRouter()
   const { id } = useParams()
   const [voyage, setVoyage] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Simuler une requête API
-    const fetchedVoyage = voyages.find((v) => v.id === id)
-    setVoyage(fetchedVoyage)
+    const fetchData = async () => {
+      // Simuler un délai de chargement
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const fetchedVoyage = voyages.find((v) => v.id === id)
+      setVoyage(fetchedVoyage)
+      setLoading(false)
+    }
+
+    fetchData()
   }, [id])
 
+  if (loading) {
+    return <VoyageSkeleton />
+  }
+
   if (!voyage) {
-    return <div>Chargement...</div>
+    return <div>Voyage non trouvé</div>
   }
 
   return (

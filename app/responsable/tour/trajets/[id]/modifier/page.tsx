@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Plus, Minus } from "lucide-react"
+import { TrajetSkeleton } from "@/components/skeletons/trajet-skeleton"
 
 // Données statiques pour l'exemple (à remplacer par un appel API réel)
 const trajets = [
@@ -37,11 +38,19 @@ export default function ModifierTrajet() {
   const router = useRouter()
   const { id } = useParams()
   const [trajet, setTrajet] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Simuler une requête API
-    const fetchedTrajet = trajets.find((t) => t.id === id)
-    setTrajet(fetchedTrajet)
+    const fetchData = async () => {
+      // Simuler un délai de chargement
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const fetchedTrajet = trajets.find((t) => t.id === id)
+      setTrajet(fetchedTrajet)
+      setLoading(false)
+    }
+
+    fetchData()
   }, [id])
 
   const ajouterEtape = () => {
@@ -63,8 +72,12 @@ export default function ModifierTrajet() {
     router.push("/responsable/tour/trajets")
   }
 
+  if (loading) {
+    return <TrajetSkeleton />
+  }
+
   if (!trajet) {
-    return <div>Chargement...</div>
+    return <div>Trajet non trouvé</div>
   }
 
   return (
