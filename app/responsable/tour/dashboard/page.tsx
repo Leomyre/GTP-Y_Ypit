@@ -1,10 +1,30 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { fetchDashboardStats, fetchRevenusParDestination } from "@/services/service-dashboard"
 import type React from "react"
-import { ChartArea } from "@/components/chart-area"
 import { ChartBar } from "@/components/chart-bar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Plane, CreditCard, TrendingUp } from "lucide-react"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function Dashboard() {
+  const { token } = useAuth()
+  const [stats, setStats] = useState<any>(null)
+  const [revenusData, setRevenusData] = useState<any>(null)
+
+  useEffect(() => {
+    if (token) {
+      fetchDashboardStats(token).then(setStats)
+      fetchDashboardStats(token).then(setStats)
+      fetchRevenusParDestination(token).then(setRevenusData)
+    }
+  }, [token])
+
+  if (!stats) {
+    return <div>Chargement...</div>
+  }
+
   return (
     <div className="space-y-6 p-4 sm:p-6 md:p-8">
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -14,40 +34,37 @@ export default function Dashboard() {
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Réservations totales"
-          value="1,234"
-          icon={<Plane className="h-5 w-5 sm:h-6 sm:w-6" />}
-          trend="+12%"
+          value={stats.total_reservations}
+          icon={<Plane />}
+          trend=""
         />
-        <StatCard title="Nouveaux clients" value="256" icon={<Users className="h-5 w-5 sm:h-6 sm:w-6" />} trend="+5%" />
+        <StatCard
+          title="Nouveaux clients"
+          value={stats.new_clients}
+          icon={<Users />}
+          trend=""
+        />
         <StatCard
           title="Chiffre d'affaires"
-          value="152,345 €"
-          icon={<CreditCard className="h-5 w-5 sm:h-6 sm:w-6" />}
-          trend="+8%"
+          value={stats.total_revenue}
+          icon={<CreditCard />}
+          trend=""
         />
         <StatCard
           title="Taux de conversion"
-          value="3.2%"
-          icon={<TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />}
-          trend="+0.5%"
+          value={stats.conversion_rate}
+          icon={<TrendingUp />}
+          trend=""
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Réservations Mensuelles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartArea />
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-1">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Chiffre d&aposaffaires par destination</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartBar />
+            <ChartBar data={revenusData} />
           </CardContent>
         </Card>
       </div>

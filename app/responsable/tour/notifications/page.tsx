@@ -331,10 +331,10 @@ export default function NotificationsPage() {
                     <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
                       <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-medium mb-1">
                         <Lightbulb className="h-4 w-4" />
-                        Suggestion de l'IA
+                        Suggestion de l&aposIA
                       </div>
                       <p className="text-sm text-green-700 dark:text-green-300">
-                        Basée sur l'analyse de {notification.metadata?.searchIncrease}% d'augmentation des recherches.
+                        Basée sur l&aposanalyse de {notification.metadata?.searchIncrease}% d&aposaugmentation des recherches.
                         Demande estimée: {notification.metadata?.estimatedDemand}.
                       </p>
                     </div>
@@ -374,7 +374,7 @@ export default function NotificationsPage() {
               <CardContent className="flex flex-col items-center justify-center py-8">
                 <Bell className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg font-medium">Aucune notification</p>
-                <p className="text-muted-foreground">Vous n'avez pas de notifications dans cette catégorie</p>
+                <p className="text-muted-foreground">Vous n&aposavez pas de notifications dans cette catégorie</p>
               </CardContent>
             </Card>
           )}
@@ -400,7 +400,7 @@ export default function NotificationsPage() {
               <div>
                 <h3 className="font-medium">Tendances actuelles</h3>
                 <p className="text-sm text-muted-foreground">
-                  Les voyages écologiques et durables sont en forte hausse. Envisagez d'ajouter des options de voyage à
+                  Les voyages écologiques et durables sont en forte hausse. Envisagez d&aposajouter des options de voyage à
                   faible empreinte carbone.
                 </p>
               </div>
@@ -424,7 +424,7 @@ export default function NotificationsPage() {
               <div>
                 <h3 className="font-medium">Comportement client</h3>
                 <p className="text-sm text-muted-foreground">
-                  Les voyageurs réservent plus tôt que l'année dernière. Envisagez des offres de réservation anticipée
+                  Les voyageurs réservent plus tôt que l&aposannée dernière. Envisagez des offres de réservation anticipée
                   pour maximiser les ventes.
                 </p>
               </div>
@@ -433,7 +433,7 @@ export default function NotificationsPage() {
           <CardFooter>
             <Button className="w-full">
               <MessageSquare className="mr-2 h-4 w-4" />
-              Discuter avec l'assistant IA
+              Discuter avec l&aposassistant IA
             </Button>
           </CardFooter>
         </Card>

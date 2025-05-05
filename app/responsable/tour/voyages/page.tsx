@@ -1,86 +1,56 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Search, Plus } from "lucide-react"
+import { VoyageService } from "@/services/service-voyages"
+import { Voyage } from "@/types/voyages"
+import { VoyageCard } from "@/components/VoyageCard" // Chemin selon ton projet
+import { ChevronLeft, ChevronRight, Search, Plus } from "lucide-react"
 
-// Données statiques pour l'exemple
-const voyages = [
-  {
-    id: 1,
-    nom: "Paris Romantique",
-    destination: "Paris",
-    dateDepart: "2025-06-15",
-    duree: 7,
-    prix: 1200,
-    placesDisponibles: 20,
-  },
-  {
-    id: 2,
-    nom: "Aventure à Bali",
-    destination: "Bali",
-    dateDepart: "2025-07-01",
-    duree: 10,
-    prix: 1800,
-    placesDisponibles: 15,
-  },
-  {
-    id: 3,
-    nom: "New York City Break",
-    destination: "New York",
-    dateDepart: "2025-08-10",
-    duree: 5,
-    prix: 1500,
-    placesDisponibles: 25,
-  },
-  {
-    id: 4,
-    nom: "Safari Kenyan",
-    destination: "Kenya",
-    dateDepart: "2025-09-05",
-    duree: 8,
-    prix: 2200,
-    placesDisponibles: 12,
-  },
-  {
-    id: 5,
-    nom: "Tokyo Découverte",
-    destination: "Tokyo",
-    dateDepart: "2025-10-20",
-    duree: 9,
-    prix: 2000,
-    placesDisponibles: 18,
-  },
-]
+const ITEMS_PER_PAGE = 6 // Tu peux changer selon ce que tu veux afficher
 
 export default function VoyagesPage() {
+  const [voyages, setVoyages] = useState<Voyage[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null)
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Voyage; direction: "asc" | "desc" } | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredVoyages = voyages.filter(
-    (voyage) =>
-      voyage.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      voyage.destination.toLowerCase().includes(searchTerm.toLowerCase()),
+  useEffect(() => {
+    const fetchVoyages = async () => {
+      try {
+        const data = await VoyageService.getVoyages()
+        setVoyages(data)
+        setLoading(false)
+      } catch (err) {
+        setError("Erreur lors de la récupération des voyages")
+        console.error(err)
+        setLoading(false)
+      }
+    }
+    fetchVoyages()
+  }, [])
+
+  const filteredVoyages = voyages.filter((voyage) =>
+    voyage.titre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    voyage.destination_nom?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const sortedVoyages = [...filteredVoyages].sort((a, b) => {
     if (!sortConfig) return 0
     const { key, direction } = sortConfig
-    if (a[key as keyof typeof a] < b[key as keyof typeof b]) {
-      return direction === "asc" ? -1 : 1
-    }
-    if (a[key as keyof typeof a] > b[key as keyof typeof b]) {
-      return direction === "asc" ? 1 : -1
-    }
+    if ((a[key] ?? "") < (b[key] ?? "")) return direction === "asc" ? -1 : 1
+    if ((a[key] ?? "") > (b[key] ?? "")) return direction === "asc" ? 1 : -1
     return 0
   })
 
-  const requestSort = (key: string) => {
+  const totalPages = Math.ceil(sortedVoyages.length / ITEMS_PER_PAGE)
+  const paginatedVoyages = sortedVoyages.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+
+  const requestSort = (key: keyof Voyage) => {
     let direction: "asc" | "desc" = "asc"
     if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc"
@@ -88,10 +58,19 @@ export default function VoyagesPage() {
     setSortConfig({ key, direction })
   }
 
-  return (
-    <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold">Liste des Voyages</h1>
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1))
+  }
 
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+  }
+
+  if (loading) return <div className="text-center mt-10">Chargement...</div>
+  if (error) return <div className="text-center text-red-500 mt-10">{error}</div>
+
+  return (
+    <div className="container mx-auto p-4 space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -99,7 +78,7 @@ export default function VoyagesPage() {
             type="text"
             placeholder="Rechercher un voyage..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
             className="pl-10"
           />
         </div>
@@ -110,79 +89,32 @@ export default function VoyagesPage() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Voyages</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">
-                  <button className="flex items-center" onClick={() => requestSort("nom")}>
-                    Nom <ChevronDown size={16} />
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button className="flex items-center" onClick={() => requestSort("destination")}>
-                    Destination <ChevronDown size={16} />
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button className="flex items-center" onClick={() => requestSort("dateDepart")}>
-                    Date de départ <ChevronDown size={16} />
-                  </button>
-                </TableHead>
-                <TableHead>Durée</TableHead>
-                <TableHead>
-                  <button className="flex items-center" onClick={() => requestSort("prix")}>
-                    Prix <ChevronDown size={16} />
-                  </button>
-                </TableHead>
-                <TableHead>Places disponibles</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedVoyages.map((voyage) => (
-                <TableRow key={voyage.id}>
-                  <TableCell className="font-medium">{voyage.nom}</TableCell>
-                  <TableCell>{voyage.destination}</TableCell>
-                  <TableCell>{new Date(voyage.dateDepart).toLocaleDateString()}</TableCell>
-                  <TableCell>{voyage.duree} jours</TableCell>
-                  <TableCell>{voyage.prix} €</TableCell>
-                  <TableCell>{voyage.placesDisponibles}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Ouvrir le menu</span>
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Link href={`/responsable/tour/voyages/${voyage.id}`}>Voir les détails</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Link href={`/responsable/tour/voyages/${voyage.id}/modifier`}>Modifier</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Link href={`/responsable/tour/trajets/ajouter?voyageId=${voyage.id}`}>
-                            Ajouter un trajet
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>Supprimer</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Tri options */}
+      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+        <Button variant="outline" onClick={() => requestSort("titre")}>Trier par Nom</Button>
+        <Button variant="outline" onClick={() => requestSort("destination_nom")}>Trier par Destination</Button>
+        <Button variant="outline" onClick={() => requestSort("prix")}>Trier par Prix</Button>
+      </div>
+
+      {/* Grid de voyages */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        {paginatedVoyages.map((voyage) => (
+          <VoyageCard key={voyage.id} voyage={voyage} />
+        ))}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <Button variant="outline" onClick={handlePrevious} disabled={currentPage === 1}>
+            <ChevronLeft className="w-4 h-4" /> Précédent
+          </Button>
+          <span className="text-sm font-semibold">{currentPage} / {totalPages}</span>
+          <Button variant="outline" onClick={handleNext} disabled={currentPage === totalPages}>
+            Suivant <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
-

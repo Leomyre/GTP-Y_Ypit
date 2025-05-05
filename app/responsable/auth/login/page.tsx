@@ -9,27 +9,50 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function ResponsableLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Ici, vous devriez implémenter la logique de connexion réelle
-    console.log("Tentative de connexion responsable avec:", { email, password })
+    setIsLoading(true)
 
-    // Simuler une requête API
-    setTimeout(() => {
+    try {
+      await login(email, password, "responsable")
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre espace responsable !",
+        createdAt: Date.now(),
       })
-      router.push("/responsable/tour/dashboard")
-    }, 1000)
+      // La redirection est gérée dans la fonction login
+    } catch (error: unknown) {
+      console.error("Erreur lors de la connexion:", error)
+
+      let errorMessage = "Vérifiez vos identifiants et réessayez."
+
+      if (error instanceof Error && error.message.includes("credentials")) {
+        errorMessage = "Email ou mot de passe incorrect."
+      } else if (error instanceof Error && error.message.includes("verified")) {
+        errorMessage = "Votre compte n'est pas encore vérifié. Veuillez vérifier votre email."
+        router.push(`/responsable/auth/verify-email?email=${encodeURIComponent(email)}`)
+      }
+
+      toast({
+        title: "Erreur de connexion",
+        description: errorMessage,
+        variant: "destructive",
+        createdAt: Date.now(),
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -38,7 +61,7 @@ export default function ResponsableLogin() {
         <CardHeader>
           <CardTitle>Connexion Responsable</CardTitle>
           <CardDescription>
-            Connectez-vous à votre compte responsable pour gérer votre agence de voyage.
+            Connectez-vous à votre espace responsable pour gérer vos établissements.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -52,6 +75,7 @@ export default function ResponsableLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -62,10 +86,18 @@ export default function ResponsableLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Se connecter
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                  Connexion en cours...
+                </>
+              ) : (
+                "Se connecter"
+              )}
             </Button>
           </form>
         </CardContent>
@@ -81,4 +113,3 @@ export default function ResponsableLogin() {
     </div>
   )
 }
-

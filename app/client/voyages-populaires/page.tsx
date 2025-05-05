@@ -1,51 +1,55 @@
-import { VoyageCard } from "@/components/VoyageCard"
+"use client"
 
-const voyagesPopulaires = [
-  {
-    id: 1,
-    nom: "Séjour de luxe à Paris",
-    ville_depart: "Lyon",
-    ville_arrive: "Paris",
-    date_depart: "2025-03-15",
-    prix: 1200,
-    image: "/images/paris.jpg",
-    agence_nom: "Voyages Extraordinaires",
-    etoiles: 5,
-    likes: 80,
-  },
-  {
-    id: 2,
-    nom: "Aventure à Bali",
-    ville_depart: "Paris",
-    ville_arrive: "Bali",
-    date_depart: "2025-04-01",
-    prix: 1800,
-    image: "/images/bali.jpg",
-    agence_nom: "Évasion Tropicale",
-    etoiles: 4,
-    likes: 65,
-  },
-  {
-    id: 3,
-    nom: "Découverte de New York",
-    ville_depart: "Marseille",
-    ville_arrive: "New York",
-    date_depart: "2025-05-20",
-    prix: 1500,
-    image: "/images/new-york.jpg",
-    agence_nom: "City Explorer",
-    etoiles: 4,
-    likes: 72,
-  },
-]
+import { useState, useEffect } from "react"
+import { VoyageCard } from "@/components/VoyageCard"
+import { VoyageService } from "@/services/service-voyages" // Ajustez le chemin selon votre structure
+import { Voyage } from "@/types/voyages"
 
 export default function VoyagesPopulaires() {
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [voyagesPopulaires, setVoyagesPopulaires] = useState<Voyage[]>([])
+
+  useEffect(() => {
+    const fetchVoyagesPopulaires = async () => {
+      try {
+        const data = await VoyageService.getPopularVoyages();
+        setVoyagesPopulaires(data); // Utilise directement le tableau retourné
+        setLoading(false);
+      } catch (err) {
+        setError("Erreur lors de la récupération des voyages");
+        setLoading(false);
+        console.error(err);
+      }
+    };
+
+    fetchVoyagesPopulaires();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">Voyages Recommandés</h1>
+        <div className="text-center animate-pulse text-gray-500">Chargement...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">Voyages Recommandés</h1>
+        <div className="text-center text-red-600">{error}</div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">Voyages Populaires</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {voyagesPopulaires.map((voyage) => (
-          <VoyageCard key={voyage.id} voyage={voyage} />
+        {voyagesPopulaires.map((voyages) => (
+          <VoyageCard key={voyages.id} voyage={voyages} />
         ))}
       </div>
     </div>

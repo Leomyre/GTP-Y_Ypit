@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function ClientRegister() {
@@ -118,7 +118,7 @@ export default function ClientRegister() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">Nom d&aposutilisateur</Label>
               <Input id="username" name="username" value={formData.username} onChange={handleChange} required />
             </div>
             <div className="space-y-2">
@@ -183,7 +183,7 @@ export default function ClientRegister() {
               />
             </div>
             <Button type="submit" className="w-full">
-              S'inscrire
+              S&aposinscrire
             </Button>
           </form>
         </CardContent>

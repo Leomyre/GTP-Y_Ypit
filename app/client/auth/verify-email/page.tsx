@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function VerifyEmail() {
@@ -58,7 +58,7 @@ export default function VerifyEmail() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Vérification de l'email</CardTitle>
+          <CardTitle>Vérification de l&aposemail</CardTitle>
           <CardDescription>Entrez le code de vérification reçu par email pour activer votre compte.</CardDescription>
         </CardHeader>
         <CardContent>

@@ -4,13 +4,12 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, Route, User, Bell } from "lucide-react"
+import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, User, Bell } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 const navItems = [
   { name: "Tableau de bord", href: "/responsable/tour/dashboard", icon: Home },
   { name: "Voyages", href: "/responsable/tour/voyages", icon: Plane },
-  { name: "Trajets", href: "/responsable/tour/trajets", icon: Route },
   { name: "Réservations", href: "/responsable/tour/reservations", icon: BookOpen },
   { name: "Destinations", href: "/responsable/tour/destinations", icon: Map },
   { name: "Clients", href: "/responsable/tour/clients", icon: Users },
@@ -29,11 +28,10 @@ const NavbarResponsable = () => {
         <li key={item.name}>
           <Link href={item.href} onClick={() => setShowNav(false)}>
             <span
-              className={`flex items-center px-4 py-2 text-sm rounded-md transition-colors ${
-                pathname === item.href
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-              }`}
+              className={`flex items-center px-4 py-2 text-sm rounded-md transition-colors ${pathname === item.href
+                ? "bg-blue-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                }`}
             >
               <item.icon className="w-5 h-5 mr-3" />
               {item.name}

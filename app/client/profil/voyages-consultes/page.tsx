@@ -9,41 +9,36 @@ import { ArrowLeft, Calendar, MapPin } from "lucide-react"
 import { withAuth } from "@/components/withAuth"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-
-// Données statiques pour l'exemple (à remplacer par un appel API réel)
-const voyagesConsultes = [
-  {
-    id: 1,
-    nom: "Séjour de luxe à Paris",
-    destination: "Paris",
-    date_consultation: "2024-06-10T14:30:00",
-    prix: 1200,
-  },
-  {
-    id: 3,
-    nom: "Découverte de New York",
-    destination: "New York",
-    date_consultation: "2024-06-09T10:15:00",
-    prix: 1500,
-  },
-  {
-    id: 5,
-    nom: "Croisière en Méditerranée",
-    destination: "Méditerranée",
-    date_consultation: "2024-06-08T16:45:00",
-    prix: 1600,
-  },
-]
+import { useAuth } from "@/hooks/useAuth"
+import { VoyageService } from "@/services/service-voyages"
+import { Voyage } from "@/types/voyages"
 
 const VoyagesConsultes = () => {
   const router = useRouter()
-  const [voyages, setVoyages] = useState(voyagesConsultes)
+  const { token } = useAuth()
+  const [voyages, setVoyages] = useState<Voyage[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Simuler un chargement des données depuis l'API
   useEffect(() => {
-    // Dans une implémentation réelle, vous feriez un appel API ici
-    // pour récupérer les voyages consultés par l'utilisateur
-  }, [])
+    const fetchConsultations = async () => {
+      if (!token) return
+
+      try {
+        const data = await VoyageService.getConsultation(token)
+        console.log(data);
+
+        setVoyages(data.results)
+      } catch (error) {
+        console.error("Erreur lors du chargement des voyages consultés :", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchConsultations()
+  }, [token])
 
   const handleVoyageClick = (id: number) => {
     router.push(`/client/voyage/${id}`)
@@ -81,16 +76,20 @@ const VoyagesConsultes = () => {
                         onClick={() => handleVoyageClick(voyage.id)}
                         className="text-green-600 hover:underline font-medium focus:outline-none"
                       >
-                        {voyage.nom}
+                        {voyage.titre}
                       </button>
                     </TableCell>
-                    <TableCell className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-1 text-gray-500" />
-                      {voyage.destination}
+                    <TableCell>
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                        {voyage.destination_nom}
+                      </div>
                     </TableCell>
-                    <TableCell className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                      {format(new Date(voyage.date_consultation), "d MMM yyyy à HH:mm", { locale: fr })}
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1 text-gray-500" />
+                        {format(new Date(voyage.date_consultation), "d MMM yyyy à HH:mm", { locale: fr })}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(voyage.prix)}
@@ -101,7 +100,7 @@ const VoyagesConsultes = () => {
             </Table>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">Vous n'avez pas encore consulté de voyages.</p>
+              <p className="text-gray-500 dark:text-gray-400">Vous n&aposavez pas encore consulté de voyages.</p>
               <Button className="mt-4" onClick={() => router.push("/client/accueil")}>
                 Découvrir des voyages
               </Button>
@@ -114,4 +113,3 @@ const VoyagesConsultes = () => {
 }
 
 export default withAuth(VoyagesConsultes)
-

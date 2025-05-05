@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Save } from "lucide-react"
 import { withAuth } from "@/components/withAuth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
 import { Separator } from "@/components/ui/separator"
 
 const ParametresClient = () => {
@@ -148,15 +148,15 @@ const ParametresClient = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Préférences d'affichage</CardTitle>
-          <CardDescription>Personnalisez l'apparence de l'application</CardDescription>
+          <CardTitle>Préférences d&aposaffichage</CardTitle>
+          <CardDescription>Personnalisez l&aposapparence de l&aposapplication</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="modeNuit">Mode nuit automatique</Label>
               <p className="text-sm text-muted-foreground">
-                Activer automatiquement le mode nuit selon l'heure de la journée
+                Activer automatiquement le mode nuit selon l&aposheure de la journée
               </p>
             </div>
             <Switch

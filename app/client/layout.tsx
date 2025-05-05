@@ -2,6 +2,7 @@ import type React from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import AnimatedBackground from "@/components/AnimatedBackground"
 import NavbarClients from "@/components/NavbarClients"
+import { Chatbot } from "@/components/Chatbot"
 
 export default function ClientLayout({
   children,
@@ -23,6 +24,7 @@ export default function ClientLayout({
             © 2024 Agence de Voyage en Ligne. Tous droits réservés.
           </div>
         </footer>
+        <Chatbot />
       </div>
     </ThemeProvider>
   )

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
 import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload"
 import { withAuth } from "@/components/withAuth"
 import { useAuth } from "@/hooks/useAuth"
@@ -20,7 +20,7 @@ const ProfilClient = () => {
     nationality: "",
     email: "",
     phone_number: "",
-    photoUrl: "/placeholder-user.jpg",
+    photoUrl: "/placeholder-user.png", // Valeur par défaut
   })
   const { toast } = useToast()
   const { user, updateProfile, isAuthLoading, logout } = useAuth()
@@ -33,7 +33,7 @@ const ProfilClient = () => {
         nationality: user.nationality || "",
         email: user.email || "",
         phone_number: user.phone_number || "",
-        photoUrl: user.photoUrl || "/placeholder-user.jpg",
+        photoUrl: user.avatar || "/placeholder-user.png", // Utilisez user.avatar ici
       })
     }
   }, [user])
@@ -124,7 +124,7 @@ const ProfilClient = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Nom d'utilisateur</Label>
+                <Label htmlFor="username">Nom d&aposutilisateur</Label>
                 <Input id="username" name="username" value={profile.username} onChange={handleChange} />
               </div>
               <div className="space-y-2">
@@ -155,7 +155,7 @@ const ProfilClient = () => {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Accédez à l'historique des voyages que vous avez consultés en détail.
+              Accédez à l&aposhistorique des voyages que vous avez consultés en détail.
             </p>
           </CardContent>
           <CardFooter>
@@ -177,7 +177,7 @@ const ProfilClient = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Consultez l'historique de vos réservations de voyages.</p>
+            <p className="text-muted-foreground">Consultez l&aposhistorique de vos réservations de voyages.</p>
           </CardContent>
           <CardFooter>
             <Button

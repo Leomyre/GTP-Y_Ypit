@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toastx"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function ClientLogin() {
@@ -30,17 +30,18 @@ export default function ClientLogin() {
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre compte client !",
+        createdAt: Date.now(),
       })
       // La redirection est gérée dans la fonction login
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erreur lors de la connexion:", error)
 
       let errorMessage = "Vérifiez vos identifiants et réessayez."
 
       // Gérer les erreurs spécifiques de l'API
-      if (error.message.includes("credentials")) {
+      if (error instanceof Error && error.message.includes("credentials")) {
         errorMessage = "Email ou mot de passe incorrect."
-      } else if (error.message.includes("verified")) {
+      } else if (error instanceof Error && error.message.includes("verified")) {
         errorMessage = "Votre compte n'est pas encore vérifié. Veuillez vérifier votre email."
         router.push(`/client/auth/verify-email?email=${encodeURIComponent(email)}`)
       }
@@ -49,6 +50,7 @@ export default function ClientLogin() {
         title: "Erreur de connexion",
         description: errorMessage,
         variant: "destructive",
+        createdAt: Date.now(),
       })
     } finally {
       setIsLoading(false)
@@ -103,7 +105,7 @@ export default function ClientLogin() {
         </CardContent>
         <CardFooter className="flex justify-between">
           <Link href="/client/auth/register" className="text-sm text-blue-600 hover:underline">
-            Pas encore de compte ? S'inscrire
+            Pas encore de compte ? S&aposinscrire
           </Link>
           <Link href="/client/auth/forgot-password" className="text-sm text-blue-600 hover:underline">
             Mot de passe oublié ?

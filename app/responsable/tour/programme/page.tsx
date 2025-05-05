@@ -99,7 +99,7 @@ export default function TrajetsPage() {
           </SelectContent>
         </Select>
         <Button onClick={() => router.push(`/responsable/tour/trajets/ajouter?voyageId=${selectedVoyage}`)}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un trajet
+          <Plus className="mr-2 h-4 w-4" /> Ajouter un programme
         </Button>
       </div>
 
