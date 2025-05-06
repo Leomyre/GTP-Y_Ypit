@@ -44,12 +44,12 @@ export default function DestinationsPage() {
   }
 
   const handleCreateDestination = () => {
-    router.push("/destinations/ajouter")
+    router.push("destinations/ajouter")
   }
 
   const handleEditDestination = () => {
     if (selectedDestination) {
-      router.push(`/destinations/${selectedDestination.id}/modifier`)
+      router.push(`destinations/${selectedDestination.id}/modifier`)
     }
   }
 
@@ -186,14 +186,6 @@ export default function DestinationsPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Popularité</p>
-                      <p>{selectedDestination.popularity}%</p>
-                    </div>
-                  </div>
-
                   <div>
                     <p className="text-sm text-muted-foreground">Nombre de voyages</p>
                     <p>{selectedDestination.voyages_ids?.length || 0}</p>
