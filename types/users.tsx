@@ -33,3 +33,18 @@ export interface ProfileState {
     phone_number: string | null
     photoUrl: string
 }
+
+// Interface pour typer les données clients
+export interface Client {
+    id: number;
+    username: string;
+    email: string;
+    reservations_count: number;
+    total_spent: string;
+    last_reservation_date?: string;
+}
+
+export interface ChartData {
+    username: string
+    value: number
+}

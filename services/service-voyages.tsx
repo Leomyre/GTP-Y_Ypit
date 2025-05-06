@@ -10,7 +10,7 @@ export const VoyageService = {
     // Récupère tous les jours du programme d’un voyage
     getProgrammeVoyage: async (voyageId: number) => {
         try {
-            const response = await axios.get(`${BASE_URL}/voyages/${voyageId}/programme/`);
+            const response = await axios.get(`${BASE_URL}/voyages/${voyageId}/programmes/`);
             return response.data; // Supposé être un tableau
         } catch (error) {
             console.error(`Erreur lors de la récupération du programme pour le voyage ${voyageId} :`, error);
@@ -21,7 +21,7 @@ export const VoyageService = {
     // Récupère un jour spécifique du programme d’un voyage
     getProgrammeJour: async (voyageId: number, jourId: number) => {
         try {
-            const response = await axios.get(`${BASE_URL}/voyages/${voyageId}/programme/${jourId}/`);
+            const response = await axios.get(`${BASE_URL}/voyages/${voyageId}/programmes/${jourId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erreur lors de la récupération du jour ${jourId} du programme pour le voyage ${voyageId} :`, error);
@@ -32,7 +32,7 @@ export const VoyageService = {
     createProgrammeJour: async (voyageId: number, data: ProgrammeJour, token: string) => {
         try {
             const response = await axios.post(
-                `${BASE_URL}/voyages/${voyageId}/programme/`,
+                `${BASE_URL}/voyages/${voyageId}/programmes/`,
                 data,
                 {
                     headers: {
@@ -41,6 +41,8 @@ export const VoyageService = {
                     }
                 }
             );
+            console.log(response.data);
+
             return response.data;
         }
         catch (error) {
@@ -53,7 +55,7 @@ export const VoyageService = {
     updateProgrammeJour: async (voyageId: number, jourId: number, data: ProgrammeJour) => {
         try {
             const response = await axios.put(
-                `${BASE_URL}/voyages/${voyageId}/programme/${jourId}/`,
+                `${BASE_URL}/voyages/${voyageId}/programmes/${jourId}/`,
                 data,
                 {
                     headers: {
@@ -110,6 +112,21 @@ export const VoyageService = {
             return response.data;
         } catch (error) {
             console.error(`Error fetching voyage details for ID ${id}:`, error);
+            throw error;
+        }
+    },
+
+    updateVoyage: async (id: number, voyageData: Partial<CreateVoyage>, token: string) => {
+        try {
+            const response = await axios.put(`${BASE_URL}/voyages/${id}/`, voyageData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur lors de la mise à jour du voyage ${id} :`, error);
             throw error;
         }
     },

@@ -11,7 +11,7 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useNotifications } from "@/hooks/useNotifications"
 import { Skeleton } from "@/components/ui/skeleton"
-import { NotificationType, Notification } from "@/types/notifications"
+import { Notification } from "@/types/notifications"
 
 const FILTER_OPTIONS = ["all", "unread", "promotion", "reservation", "reminder", "new_feature", "info", "alert"] as const
 
@@ -27,17 +27,18 @@ const NotificationClient = () => {
     refresh
   } = useNotifications()
   const [filter, setFilter] = useState<typeof FILTER_OPTIONS[number]>("all")
+  const [localError, setLocalError] = useState<string | null>(null)
 
   const filteredNotifications = useMemo(() => {
-    return notifications.filter((notification: Notification) => {
+    return notifications.filter((notification) => {
       if (filter === "all") return true
       if (filter === "unread") return !notification.read
-      return notification.type === filter
+      return notification.notification_type === filter
     })
   }, [notifications, filter])
 
-  const getTypeLabel = (type: NotificationType): string => {
-    const typeLabels: Record<NotificationType, string> = {
+  const getTypeLabel = (type: string): string => {
+    const typeLabels: Record<string, string> = {
       promotion: "Promotion",
       reservation: "Réservation",
       reminder: "Rappel",
@@ -48,8 +49,8 @@ const NotificationClient = () => {
     return typeLabels[type] || type
   }
 
-  const getTypeBadge = (type: NotificationType) => {
-    const variantClasses: Record<NotificationType, string> = {
+  const getTypeBadge = (type: string) => {
+    const variantClasses: Record<string, string> = {
       promotion: "bg-purple-500 hover:bg-purple-600",
       reservation: "bg-blue-500 hover:bg-blue-600",
       reminder: "bg-yellow-500 hover:bg-yellow-600",
@@ -67,21 +68,24 @@ const NotificationClient = () => {
   const handleRefresh = () => {
     refresh()
     setFilter("all")
+    setLocalError(null)
   }
 
   const handleMarkAsRead = async (id: number) => {
     try {
       await markAsRead(id)
+      setLocalError(null)
     } catch (err) {
-      console.error("Failed to mark notification as read:", err)
+      setLocalError("Échec de la mise à jour de la notification")
     }
   }
 
   const handleMarkAllAsRead = async () => {
     try {
       await markAllAsRead()
+      setLocalError(null)
     } catch (err) {
-      console.error("Failed to mark all notifications as read:", err)
+      setLocalError("Échec de la mise à jour des notifications")
     }
   }
 
@@ -106,6 +110,18 @@ const NotificationClient = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
+      {localError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          {localError}
+          <button
+            className="absolute top-0 bottom-0 right-0 px-4 py-3"
+            onClick={() => setLocalError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
           <Button
@@ -155,7 +171,7 @@ const NotificationClient = () => {
             >
               {filterType === "all" ? "Toutes" :
                 filterType === "unread" ? "Non lues" :
-                  getTypeLabel(filterType as NotificationType)}
+                  getTypeLabel(filterType)}
             </Button>
           ))}
 
@@ -191,7 +207,7 @@ const NotificationClient = () => {
         </div>
       ) : filteredNotifications.length > 0 ? (
         <div className="space-y-4">
-          {filteredNotifications.map((notification: Notification) => (
+          {filteredNotifications.map((notification) => (
             <Card
               key={notification.id}
               className={`hover:shadow-md transition-shadow ${!notification.read ? "border-l-4 border-l-teal-500 bg-teal-50/50 dark:bg-teal-900/20" : ""}`}
@@ -211,7 +227,7 @@ const NotificationClient = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {getTypeBadge(notification.type)}
+                    {getTypeBadge(notification.notification_type)}
                     {!notification.read && (
                       <Badge variant="outline" aria-hidden="true">
                         Nouveau
@@ -259,7 +275,7 @@ const NotificationClient = () => {
                 ? "Vous n'avez pas encore reçu de notifications."
                 : filter === "unread"
                   ? "Vous n'avez pas de notifications non lues."
-                  : `Vous n'avez pas de notifications de type "${getTypeLabel(filter as NotificationType)}".`}
+                  : `Vous n'avez pas de notifications de type "${getTypeLabel(filter)}".`}
             </p>
           </CardContent>
         </Card>

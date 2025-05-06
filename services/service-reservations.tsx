@@ -6,6 +6,7 @@ import {
     ReservationStats,
     PaginatedResponse
 } from "@/types/Reservation";
+import { Client } from "@/types/users";
 
 const BASE_URL = `${UrlConfig.apiBaseUrl}/reservations/`;
 
@@ -91,6 +92,58 @@ export const ReservationService = {
             return response.data;
         } catch (error) {
             console.error(`Error fetching reservations for voyage ${voyageId}:`, error);
+            throw error;
+        }
+    },
+
+    getClients: async (
+        token: string,
+        params?: {
+            min_reservations?: number;
+            min_amount?: number;
+            date_min?: string;
+            date_max?: string;
+            page?: number;
+        }
+    ): Promise<PaginatedResponse<Client>> => {
+        try {
+            const response = await axios.get<PaginatedResponse<Client>>(`${BASE_URL}clients/`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params: {
+                    ...params,
+                    date_reservation__gte: params?.date_min,
+                    date_reservation__lte: params?.date_max,
+                }
+            });
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching clients:", error);
+            throw error;
+        }
+    },
+
+    getReservationsDistribution: async (
+        token: string,
+        params?: {
+            date_min?: string;
+            date_max?: string;
+        }
+    ): Promise<{ username: string, count: number }[]> => {
+        try {
+            const response = await axios.get(`${BASE_URL}clients/distribution/`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params: {
+                    ...params,
+                    date_reservation__gte: params?.date_min,
+                    date_reservation__lte: params?.date_max,
+                }
+            });
+            console.log(response.data);
+
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching reservations distribution:", error);
             throw error;
         }
     },

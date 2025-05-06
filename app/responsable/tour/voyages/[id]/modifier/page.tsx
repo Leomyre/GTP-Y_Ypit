@@ -10,56 +10,49 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft } from "lucide-react"
 import { FormSkeleton } from "@/components/skeletons/form-skeleton"
+import { VoyageService } from "@/services/service-voyages"
+import { useAuth } from "@/hooks/useAuth"
 
-// Données statiques pour l'exemple (à remplacer par un appel API réel)
-const voyages = [
-  {
-    id: "1",
-    nom: "Paris Romantique",
-    destination: "Paris",
-    dateDepart: "2025-06-15",
-    duree: 7,
-    prix: 1200,
-    placesDisponibles: 20,
-    description: "Un séjour romantique dans la ville de l'amour.",
-  },
-  {
-    id: "2",
-    nom: "Aventure à Bali",
-    destination: "Bali",
-    dateDepart: "2025-07-01",
-    duree: 10,
-    prix: 1800,
-    placesDisponibles: 15,
-    description: "Découvrez la beauté exotique de Bali.",
-  },
-]
 
 export default function ModifierVoyage() {
   const router = useRouter()
   const { id } = useParams()
   const [voyage, setVoyage] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const { token } = useAuth()
 
   useEffect(() => {
-    // Simuler une requête API
-    const fetchData = async () => {
-      // Simuler un délai de chargement
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const fetchedVoyage = voyages.find((v) => v.id === id)
-      setVoyage(fetchedVoyage)
-      setLoading(false)
+    const fetchVoyage = async () => {
+      try {
+        const fetchedVoyage = await VoyageService.getVoyageDetails(Number(id))
+        setVoyage(fetchedVoyage)
+      } catch (error) {
+        console.error("Erreur lors du chargement du voyage :", error)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    fetchData()
+    if (id) {
+      fetchVoyage()
+    }
   }, [id])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Logique pour sauvegarder les modifications du voyage
-    console.log("Voyage modifié:", voyage)
-    router.push("/responsable/tour/voyages")
+    try {
+      if (!token) {
+        console.error("Token manquant")
+        return
+      }
+
+      await VoyageService.updateVoyage(Number(id), voyage, token)
+      router.push("/responsable/tour/voyages")
+    } catch (error) {
+      console.error("Erreur lors de la modification du voyage :", error)
+    }
   }
+
 
   if (loading) {
     return <FormSkeleton />
@@ -68,6 +61,8 @@ export default function ModifierVoyage() {
   if (!voyage) {
     return <div>Voyage non trouvé</div>
   }
+  console.log(voyage);
+
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -87,8 +82,8 @@ export default function ModifierVoyage() {
               <label className="block mb-2">Nom du Voyage</label>
               <Input
                 placeholder="Nom du voyage"
-                value={voyage.nom}
-                onChange={(e) => setVoyage({ ...voyage, nom: e.target.value })}
+                value={voyage.titre}
+                onChange={(e) => setVoyage({ ...voyage, titre: e.target.value })}
               />
             </div>
 
@@ -96,27 +91,8 @@ export default function ModifierVoyage() {
               <label className="block mb-2">Destination</label>
               <Input
                 placeholder="Destination"
-                value={voyage.destination}
+                value={voyage.destination.nom}
                 onChange={(e) => setVoyage({ ...voyage, destination: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2">Date de Départ</label>
-              <Input
-                type="date"
-                value={voyage.dateDepart}
-                onChange={(e) => setVoyage({ ...voyage, dateDepart: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2">Durée (en jours)</label>
-              <Input
-                type="number"
-                min="1"
-                value={voyage.duree}
-                onChange={(e) => setVoyage({ ...voyage, duree: Number.parseInt(e.target.value) })}
               />
             </div>
 
@@ -128,16 +104,6 @@ export default function ModifierVoyage() {
                 step="0.01"
                 value={voyage.prix}
                 onChange={(e) => setVoyage({ ...voyage, prix: Number.parseFloat(e.target.value) })}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2">Places Disponibles</label>
-              <Input
-                type="number"
-                min="0"
-                value={voyage.placesDisponibles}
-                onChange={(e) => setVoyage({ ...voyage, placesDisponibles: Number.parseInt(e.target.value) })}
               />
             </div>
 

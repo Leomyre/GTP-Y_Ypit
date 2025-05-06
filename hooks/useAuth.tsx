@@ -50,10 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user,
             token
           })
-
-          // Redirection basée sur le rôle
-          if (user.is_responsable) router.push("/responsable/tour/dashboard")
-          else if (user.is_client) router.push("/client/accueil")
         } else {
           setState(prev => ({ ...prev, isAuthLoading: false, isLoggedIn: false }))
         }
@@ -82,9 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token: access
       })
 
-      // Redirection
+      // Redirection basée sur le rôle
       if (user.is_responsable) router.push("/responsable/tour/dashboard")
-      else router.push("/client/accueil")
+      else if (user.is_client) router.push("/client/accueil")
     } catch (error) {
       console.error("Login error:", error)
       throw error

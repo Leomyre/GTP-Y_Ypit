@@ -25,7 +25,6 @@ export default function Ajouterprogramme() {
   const searchParams = useSearchParams()
   const voyageId = searchParams.get("voyageId")
   const [selectedVoyage, setSelectedVoyage] = useState(voyageId || "")
-  const [nomProgramme, setNomProgramme] = useState("")
   const [etape, setEtape] = useState<Etape>({
     jour: 1,
     titre: "",
@@ -96,10 +95,11 @@ export default function Ajouterprogramme() {
         setSuccessMessage("Programme ajouté avec succès !")
         router.push("/responsable/tour/programme")
       } else {
-        const data = await response.json()
+        const data = await response
         console.log(data);
 
         setErrorMessage(data?.detail || "Erreur lors de la création du programme.")
+        router.push("/responsable/tour/programme")
       }
     } catch (error) {
       setErrorMessage("Erreur de connexion au serveur.")
@@ -123,15 +123,6 @@ export default function Ajouterprogramme() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block mb-2">Nom du programme</label>
-              <Input
-                placeholder="Nom du programme"
-                value={nomProgramme}
-                onChange={(e) => setNomProgramme(e.target.value)}
-              />
-            </div>
-
             <div>
               <label className="block mb-2">Voyage Associé</label>
               <Select value={selectedVoyage} onValueChange={setSelectedVoyage}>

@@ -2,36 +2,56 @@ import axios from "axios";
 import { UrlConfig } from "@/utils/Config";
 import { Notification, PaginatedResponse, MarkAsReadResponse } from "@/types/notifications";
 
-const BASE_URL = `${UrlConfig.apiBaseUrl}/notifications/notifications/`; // Note: J'ai retiré le doublon 'notifications/'
+const BASE_URL = `${UrlConfig.apiBaseUrl}/notifications/notifications/`;
+
+const getAuthToken = (): string => {
+    if (typeof window !== "undefined") {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+            throw new Error("No authentication token found");
+        }
+        return token;
+    }
+    throw new Error("Window object is not available");
+};
 
 export const NotificationService = {
-    /**
-     * Récupère les notifications paginées avec filtres
-     * @param token JWT token
-     * @param params Paramètres de requête (read, type, limit, offset)
-     */
-    async getNotifications(
-        token: string,
-        params?: {
-            read?: boolean;
-            type?: string;
-            limit?: number;
-            offset?: number;
-        }
-    ): Promise<PaginatedResponse<Notification>> {
+    async getNotifications(params?: {
+        read?: boolean;
+        type?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<PaginatedResponse<Notification>> {
         try {
-            const queryParams = {
-                ...(params?.read !== undefined && { read: params.read.toString() }),
-                ...(params?.type && { type: params.type }),
-                ...(params?.limit && { limit: params.limit }),
-                ...(params?.offset && { offset: params.offset }),
-            };
+            const token = getAuthToken();
+
+            // Construction des paramètres de requête
+            const queryParams = new URLSearchParams();
+
+            if (params?.read !== undefined) {
+                queryParams.append("read", params.read.toString());
+            }
+
+            if (params?.type) {
+                queryParams.append("type", params.type);
+            }
+
+            if (params?.limit) {
+                queryParams.append("limit", params.limit.toString());
+            }
+
+            if (params?.offset) {
+                queryParams.append("offset", params.offset.toString());
+            }
 
             const response = await axios.get<PaginatedResponse<Notification>>(
                 BASE_URL,
                 {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                     params: queryParams,
+                    paramsSerializer: params => params.toString() // Important pour la sérialisation
                 }
             );
             return response.data;
@@ -41,15 +61,15 @@ export const NotificationService = {
         }
     },
 
-    /**
-     * Récupère le nombre de notifications non lues
-     */
-    async getUnreadCount(token: string): Promise<{ count: number }> {
+    async getUnreadCount(): Promise<{ count: number }> {
         try {
+            const token = getAuthToken();
             const response = await axios.get<{ count: number }>(
                 `${BASE_URL}unread_count/`,
                 {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
             return response.data;
@@ -59,23 +79,16 @@ export const NotificationService = {
         }
     },
 
-    /**
-     * Marque une notification comme lue
-     */
-    async markAsRead(
-        token: string,
-        options: { id?: number; ids?: number[]; all?: boolean }
-    ): Promise<MarkAsReadResponse> {
+    async markAsRead(options: { id?: number; ids?: number[]; all?: boolean }): Promise<MarkAsReadResponse> {
         try {
-            const data = {
-                ...(options.id && { ids: [options.id] }),
-                ...(options.ids && { ids: options.ids }),
-                ...(options.all && { all: true }),
-            };
-
+            const token = getAuthToken();
             const response = await axios.patch<MarkAsReadResponse>(
                 `${BASE_URL}mark_as_read/`,
-                data,
+                {
+                    ...(options.id && { ids: [options.id] }),
+                    ...(options.ids && { ids: options.ids }),
+                    ...(options.all && { all: true }),
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -90,19 +103,16 @@ export const NotificationService = {
         }
     },
 
-    /**
-     * Marque une notification spécifique comme lue
-     */
-    async markOneAsRead(
-        token: string,
-        notificationId: number
-    ): Promise<{ status: string; unread_count: number }> {
+    async markOneAsRead(notificationId: number): Promise<{ status: string; unread_count: number }> {
         try {
+            const token = getAuthToken();
             const response = await axios.patch<{ status: string; unread_count: number }>(
                 `${BASE_URL}${notificationId}/mark_one_as_read/`,
                 {},
                 {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
             return response.data;
@@ -112,26 +122,25 @@ export const NotificationService = {
         }
     },
 
-    /**
-     * Crée une nouvelle notification (admin seulement)
-     */
-    async createNotification(
-        token: string,
-        data: {
-            user_id: number;
-            title: string;
-            message: string;
-            notification_type: string;
-            metadata?: object;
-        }
-    ): Promise<Notification> {
+    async createNotification(data: {
+        user_id: number;
+        title: string;
+        message: string;
+        notification_type: string;
+        metadata?: object;
+    }): Promise<Notification> {
         try {
-            const response = await axios.post<Notification>(BASE_URL, data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
+            const token = getAuthToken();
+            const response = await axios.post<Notification>(
+                BASE_URL,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
             return response.data;
         } catch (error) {
             console.error("Error creating notification:", error);

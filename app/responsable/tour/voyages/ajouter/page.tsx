@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { VoyageService } from "@/services/service-voyages";
 import { DestinationService } from "@/services/service-destinations";
 import { useAuth } from "@/hooks/useAuth";
@@ -241,7 +241,14 @@ export default function AjouterVoyage() {
             </div>
 
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Création en cours..." : "Créer le Voyage"}
+              {isLoading ? (
+                <div className="flex items-center">
+                  <span>Création en cours...</span>
+                  <Loader2 className="animate-spin ml-2 h-4 w-4" />
+                </div>
+              ) : (
+                "Créer le Voyage"
+              )}
             </Button>
           </form>
         </CardContent>

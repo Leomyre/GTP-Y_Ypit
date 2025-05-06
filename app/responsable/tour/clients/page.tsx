@@ -1,25 +1,53 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import ClientChart from "@/components/ClientChart"
 import { AIInsights } from "@/components/AIInsights"
-
-const clients = [
-  { id: 1, name: "Alice Dupont", email: "alice@example.com", reservations: 3, totalSpent: "750€" },
-  { id: 2, name: "Bob Martin", email: "bob@example.com", reservations: 1, totalSpent: "300€" },
-  { id: 3, name: "Claire Leroy", email: "claire@example.com", reservations: 2, totalSpent: "1200€" },
-  { id: 4, name: "David Moreau", email: "david@example.com", reservations: 2, totalSpent: "500€" },
-  { id: 5, name: "Emma Petit", email: "emma@example.com", reservations: 4, totalSpent: "900€" },
-]
-
-const chartData = [
-  { name: "1 réservation", value: 1 },
-  { name: "2 réservations", value: 2 },
-  { name: "3 réservations", value: 1 },
-  { name: "4 réservations", value: 1 },
-  { name: "5 réservations", value: 0 },
-]
+import { useEffect, useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ReservationService } from "@/services/service-reservations"
+import { useAuth } from "@/hooks/useAuth"
+import { Client, ChartData } from "@/types/users"
 
 export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([])
+  const [chartData, setChartData] = useState<ChartData[]>([])
+  const [loading, setLoading] = useState(true)
+  const { token } = useAuth()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Récupération des clients
+        const clientsResponse = await ReservationService.getClients(token);
+        setClients(clientsResponse);
+
+
+
+        // Récupération des stats pour le graphique
+        const distributionResponse = await ReservationService.getReservationsDistribution(token);
+        const chartData = distributionResponse.map(item => ({
+          username: item.username,
+          value: item.count
+        }));
+        console.log(chartData);
+
+        setChartData(chartData);
+      } catch (error) {
+        throw error;
+        // Gestion des erreurs
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [token]);
+
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Clients</h1>
@@ -40,14 +68,31 @@ export default function ClientsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell>{client.name}</TableCell>
-                    <TableCell>{client.email}</TableCell>
-                    <TableCell>{client.reservations}</TableCell>
-                    <TableCell>{client.totalSpent}</TableCell>
+                {loading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[50px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : clients.length > 0 ? (
+                  clients.map((client) => (
+                    <TableRow key={client.id}>
+                      <TableCell>{client.username}</TableCell>
+                      <TableCell>{client.email}</TableCell>
+                      <TableCell>{client.reservations_count}</TableCell>
+                      <TableCell>{client.total_spent}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-4">
+                      Aucun client trouvé
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -58,13 +103,16 @@ export default function ClientsPage() {
             <CardTitle>Répartition des Réservations</CardTitle>
           </CardHeader>
           <CardContent>
-            <ClientChart data={chartData} />
+            {loading ? (
+              <Skeleton className="h-[300px] w-full" />
+            ) : (
+              <ClientChart data={chartData} />
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <AIInsights data={clients} page="clients" />
+      {!loading && <AIInsights data={clients} page="clients" />}
     </div>
   )
 }
-

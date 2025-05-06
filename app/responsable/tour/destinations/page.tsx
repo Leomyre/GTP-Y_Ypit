@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AIInsights } from "@/components/AIInsights"
 import { DestinationService } from "@/services/service-destinations"
 import { Destination } from "@/types/Destinations"
 import { DestinationCard } from "@/components/DestinationCard"
@@ -45,12 +44,12 @@ export default function DestinationsPage() {
   }
 
   const handleCreateDestination = () => {
-    router.push("/destinations/new")
+    router.push("/destinations/ajouter")
   }
 
   const handleEditDestination = () => {
     if (selectedDestination) {
-      router.push(`/destinations/edit/${selectedDestination.id}`)
+      router.push(`/destinations/${selectedDestination.id}/modifier`)
     }
   }
 
@@ -244,18 +243,6 @@ export default function DestinationsPage() {
           </CardContent>
         </Card>
       </div>
-
-      <AIInsights
-        data={destinations}
-        page="destinations"
-        onRefresh={() => {
-          setLoading(true)
-          DestinationService.getDestinations()
-            .then(data => setDestinations(data))
-            .catch(err => setError("Erreur lors du rafraîchissement"))
-            .finally(() => setLoading(false))
-        }}
-      />
     </div>
   )
 }

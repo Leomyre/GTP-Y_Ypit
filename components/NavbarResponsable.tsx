@@ -13,7 +13,7 @@ const navItems = [
   { name: "Réservations", href: "/responsable/tour/reservations", icon: BookOpen },
   { name: "Destinations", href: "/responsable/tour/destinations", icon: Map },
   { name: "Clients", href: "/responsable/tour/clients", icon: Users },
-  { name: "Finances", href: "/responsable/tour/finances", icon: CreditCard },
+  { name: "Relances", href: "/responsable/tour/relances-clients", icon: CreditCard },
   { name: "Notifications", href: "/responsable/tour/notifications", icon: Bell, badge: 5 },
   { name: "Profil", href: "/responsable/tour/profil", icon: User },
 ]
