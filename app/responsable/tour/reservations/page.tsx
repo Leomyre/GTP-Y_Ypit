@@ -9,13 +9,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation"
 import { ReservationService } from "@/services/service-reservations";
 import { Reservation, VoyageOption, ReservationStats } from "@/types/Reservation";
 import { Badge } from "@/components/ui/badge"
 import VoyageService from "@/services/service-voyages";
+import { StatCardReservation } from "@/components/StatCardReservation";
+import { AIInsights } from "@/components/AIInsights";
 
 export default function ResponsibleReservationsPage() {
   const { user, token } = useAuth();
+  const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [voyages, setVoyages] = useState<VoyageOption[]>([]);
   const [stats, setStats] = useState<ReservationStats | null>(null);
@@ -23,29 +27,38 @@ export default function ResponsibleReservationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Formatage des données pour l'analyse IA
+  const reservationsData = reservations.map(reservation => ({
+    id: reservation.id,
+    voyage: reservation.voyage.titre,
+    client: `${reservation.utilisateur.prenom} ${reservation.utilisateur.nom}`,
+    date: reservation.date_reservation,
+    participants: reservation.nombre_adultes + reservation.nombre_enfants,
+    montant: reservation.prix_total,
+    statut: reservation.est_confirmee ? "confirmé" : reservation.statut_paiement
+  }));
+
   const fetchData = async () => {
-    if (!token) return;
+    if (!token) {
+      router.push("/responsable/auth/login")
+      return;
+    }
 
     try {
       setLoading(true);
       const [mesVoyages, allReservations, statistiques] = await Promise.all([
         VoyageService.getVoyages(),
-        ReservationService.getAll(token, { responsable: user?.id }), // ou un autre filtre si nécessaire
+        ReservationService.getAll(token, { responsable: user?.id }),
         ReservationService.getStats(token, { responsable: user?.id })
       ]);
 
       setVoyages(mesVoyages);
       setReservations(allReservations.results || []);
       setStats(statistiques);
-      console.log(statistiques);
-      console.log(allReservations.results || []);
-      console.log(mesVoyages);
-
       setError(null);
     } catch (err: any) {
       setError("Erreur lors du chargement des données.");
       console.error(err);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -55,23 +68,17 @@ export default function ResponsibleReservationsPage() {
     fetchData();
   }, [token]);
 
-
   const filteredReservations = selectedVoyage === "all"
     ? reservations
     : reservations.filter(res => res.voyage.id === selectedVoyage);
 
-  const graphData = [
-    {
-      name: "Réservations",
-      data: voyages.map(voyage => ({
-        name: voyage.titre,
-        reservations: reservations.filter(r => r.voyage.id === voyage.id).length,
-        chiffreAffaire: reservations
-          .filter(r => r.voyage.id === voyage.id)
-          .reduce((sum, r) => sum + r.prix_total, 0)
-      }))
-    }
-  ];
+  const graphData = voyages.map(voyage => ({
+    name: voyage.titre,
+    reservations: reservations.filter(r => r.voyage.id === voyage.id).length,
+    chiffreAffaire: reservations
+      .filter(r => r.voyage.id === voyage.id)
+      .reduce((sum, r) => sum + r.prix_total, 0)
+  }));
 
   const getStatusBadge = (reservation: Reservation) => {
     if (reservation.est_confirmee) {
@@ -109,7 +116,7 @@ export default function ResponsibleReservationsPage() {
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Données des Réservations</h1>
+        <h1 className="text-3xl font-bold">Gestion des Réservations</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchData} disabled={loading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -120,17 +127,17 @@ export default function ResponsibleReservationsPage() {
 
       {/* Cartes de statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard
+        <StatCardReservation
           title="Total Réservations"
           value={stats?.total_reservations || 0}
           loading={loading}
         />
-        <StatCard
+        <StatCardReservation
           title="Réservations Confirmées"
           value={stats?.total_reservations_confirmees || 0}
           loading={loading}
         />
-        <StatCard
+        <StatCardReservation
           title="Chiffre d'Affaires"
           value={`${stats?.chiffre_affaire?.toLocaleString('fr-FR') || 0} €`}
           loading={loading}
@@ -150,7 +157,7 @@ export default function ResponsibleReservationsPage() {
               <div className="h-[300px]">
                 <h3 className="text-center mb-2">Nombre de Réservations</h3>
                 <ResponsiveContainer width="100%" height="90%">
-                  <BarChart data={graphData[0].data}>
+                  <BarChart data={graphData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
@@ -163,7 +170,7 @@ export default function ResponsibleReservationsPage() {
               <div className="h-[300px]">
                 <h3 className="text-center mb-2">Chiffre d'Affaires</h3>
                 <ResponsiveContainer width="100%" height="90%">
-                  <BarChart data={graphData[0].data}>
+                  <BarChart data={graphData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
@@ -238,7 +245,9 @@ export default function ResponsibleReservationsPage() {
                             {reservation.utilisateur.email}
                           </div>
                         </TableCell>
-                        <TableCell>{reservation.date_reservation}</TableCell>
+                        <TableCell>
+                          {new Date(reservation.date_reservation).toLocaleDateString('fr-FR')}
+                        </TableCell>
                         <TableCell>
                           {reservation.nombre_adultes} adultes
                           {reservation.nombre_enfants > 0 && `, ${reservation.nombre_enfants} enfants`}
@@ -264,26 +273,14 @@ export default function ResponsibleReservationsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
-  );
-}
 
-// Composant StatCard pour afficher les statistiques
-function StatCard({ title, value, loading }: { title: string; value: string | number; loading: boolean }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <Skeleton className="h-8 w-3/4" />
-        ) : (
-          <div className="text-2xl font-bold">{value}</div>
-        )}
-      </CardContent>
-    </Card>
+      {/* Section AI Insights */}
+      {!loading && reservations.length > 0 && (
+        <AIInsights
+          data={reservationsData}
+          pageType="reservations"
+        />
+      )}
+    </div>
   );
 }

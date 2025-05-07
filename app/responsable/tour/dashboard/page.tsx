@@ -7,11 +7,14 @@ import { ChartBar } from "@/components/chart-bar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Plane, CreditCard, TrendingUp } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
   const { token } = useAuth()
+  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [revenusData, setRevenusData] = useState<any>(null)
+
 
   useEffect(() => {
     if (token) {
@@ -20,6 +23,11 @@ export default function Dashboard() {
       fetchRevenusParDestination(token).then(setRevenusData)
     }
   }, [token])
+
+  if (!token) {
+    router.push("/responsable/auth/login")
+    return;
+  }
 
   if (!stats) {
     return <div>Chargement...</div>

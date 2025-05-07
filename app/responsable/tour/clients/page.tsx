@@ -25,20 +25,15 @@ export default function ClientsPage() {
         const clientsResponse = await ReservationService.getClients(token);
         setClients(clientsResponse);
 
-
-
         // Récupération des stats pour le graphique
         const distributionResponse = await ReservationService.getReservationsDistribution(token);
         const chartData = distributionResponse.map(item => ({
           username: item.username,
           value: item.count
         }));
-        console.log(chartData);
-
         setChartData(chartData);
       } catch (error) {
-        throw error;
-        // Gestion des erreurs
+        console.error("Erreur lors du chargement des données:", error);
       } finally {
         setLoading(false);
       }
@@ -47,6 +42,15 @@ export default function ClientsPage() {
     fetchData();
   }, [token]);
 
+  // Formatage des données clients pour l'analyse
+  const clientsData = clients.map(client => ({
+    id: client.id,
+    username: client.username,
+    email: client.email,
+    reservations_count: client.reservations_count,
+    total_spent: client.total_spent,
+    last_reservation_date: client.last_reservation_date
+  }));
 
   return (
     <div className="space-y-6">
@@ -80,15 +84,15 @@ export default function ClientsPage() {
                 ) : clients.length > 0 ? (
                   clients.map((client) => (
                     <TableRow key={client.id}>
-                      <TableCell>{client.username}</TableCell>
+                      <TableCell className="font-medium">{client.username}</TableCell>
                       <TableCell>{client.email}</TableCell>
                       <TableCell>{client.reservations_count}</TableCell>
-                      <TableCell>{client.total_spent}</TableCell>
+                      <TableCell>{client.total_spent?.toLocaleString('fr-FR')} €</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4">
+                    <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
                       Aucun client trouvé
                     </TableCell>
                   </TableRow>
@@ -104,7 +108,7 @@ export default function ClientsPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <Skeleton className="h-[300px] w-full" />
+              <Skeleton className="h-[300px] w-full rounded-md" />
             ) : (
               <ClientChart data={chartData} />
             )}
@@ -112,7 +116,13 @@ export default function ClientsPage() {
         </Card>
       </div>
 
-      {!loading && <AIInsights data={clients} page="clients" />}
+      {/* Section AI Insights */}
+      {!loading && clients.length > 0 && (
+        <AIInsights
+          data={clientsData}
+          pageType="clients"
+        />
+      )}
     </div>
   )
 }
