@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/hooks/useAuth"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft } from "lucide-react"
@@ -99,7 +100,7 @@ export default function Ajouterprogramme() {
         console.log(data);
 
         setErrorMessage(data?.detail || "Erreur lors de la création du programme.")
-        router.push("/responsable/tour/programme")
+        router.push("/responsable/tour/voyages")
       }
     } catch (error) {
       setErrorMessage("Erreur de connexion au serveur.")
@@ -125,19 +126,26 @@ export default function Ajouterprogramme() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block mb-2">Voyage Associé</label>
-              <Select value={selectedVoyage} onValueChange={setSelectedVoyage}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un voyage" />
-                </SelectTrigger>
-                <SelectContent>
-                  {voyages.map((voyage) => (
-                    <SelectItem key={voyage.id} value={voyage.id.toString()}>
-                      {voyage.titre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {loading ? (
+                <Skeleton className="h-10 w-full rounded-md" />
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                <Select value={selectedVoyage} onValueChange={setSelectedVoyage}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un voyage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {voyages.map((voyage) => (
+                      <SelectItem key={voyage.id} value={voyage.id.toString()}>
+                        {voyage.titre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
+
 
             <div className="space-y-2 p-4 border rounded">
               <h3 className="font-semibold">Étape</h3>

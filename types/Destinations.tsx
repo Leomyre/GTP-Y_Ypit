@@ -23,3 +23,13 @@ export interface CreateDestination {
     longitude: number,
     image?: string
 }
+
+export interface StatCardProps {
+    title: string
+    value: string | number
+    description?: string
+    change?: number // Pourcentage de changement
+    loading?: boolean
+    icon?: React.ReactNode
+    className?: string
+}

@@ -12,6 +12,7 @@ import { fr } from "date-fns/locale"
 import { useAuth } from "@/hooks/useAuth"
 import { VoyageService } from "@/services/service-voyages"
 import { Voyage } from "@/types/voyages"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const VoyagesConsultes = () => {
   const router = useRouter()
@@ -20,18 +21,16 @@ const VoyagesConsultes = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Simuler un chargement des données depuis l'API
   useEffect(() => {
     const fetchConsultations = async () => {
       if (!token) return
 
       try {
         const data = await VoyageService.getConsultation(token)
-        console.log(data);
-
         setVoyages(data.results)
       } catch (error) {
         console.error("Erreur lors du chargement des voyages consultés :", error)
+        setError("Une erreur est survenue.")
       } finally {
         setLoading(false)
       }
@@ -42,6 +41,17 @@ const VoyagesConsultes = () => {
 
   const handleVoyageClick = (id: number) => {
     router.push(`/client/voyage/${id}`)
+  }
+
+  const renderSkeletonRows = () => {
+    return Array.from({ length: 4 }).map((_, index) => (
+      <TableRow key={index}>
+        <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+      </TableRow>
+    ))
   }
 
   return (
@@ -58,7 +68,26 @@ const VoyagesConsultes = () => {
           <CardTitle>Historique de vos voyages consultés</CardTitle>
         </CardHeader>
         <CardContent>
-          {voyages.length > 0 ? (
+          {error ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 dark:text-red-400">{error}</p>
+              <Button className="mt-4" onClick={() => router.push("/client/accueil")}>
+                Retour à l&aposaccueil
+              </Button>
+            </div>
+          ) : loading ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Voyage</TableHead>
+                  <TableHead>Destination</TableHead>
+                  <TableHead>Date de consultation</TableHead>
+                  <TableHead>Prix</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{renderSkeletonRows()}</TableBody>
+            </Table>
+          ) : voyages.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -92,7 +121,7 @@ const VoyagesConsultes = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(voyage.prix)}
+                      {new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(Number(voyage.prix))}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -100,7 +129,7 @@ const VoyagesConsultes = () => {
             </Table>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">Vous n&aposavez pas encore consulté de voyages.</p>
+              <p className="text-gray-500 dark:text-gray-400">Vous n&apos;avez pas encore consulté de voyages.</p>
               <Button className="mt-4" onClick={() => router.push("/client/accueil")}>
                 Découvrir des voyages
               </Button>

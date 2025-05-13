@@ -2,7 +2,7 @@
 import { useState, useEffect, createContext, useContext } from "react"
 import { useRouter } from "next/navigation"
 import { UserService } from "@/services/service-users"
-import { UserInfo } from "@/types/users"
+import { UserInfo, RegisterUserData, ProfileState } from "@/types/users"
 
 interface AuthContextType {
   isLoggedIn: boolean
@@ -10,9 +10,9 @@ interface AuthContextType {
   user: UserInfo | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
-  register: (userData: any) => Promise<{ success: boolean; message: string }>
+  register: (userData: RegisterUserData) => Promise<{ success: boolean; message: string }>
   verifyEmail: (email: string, code: string) => Promise<{ success: boolean; message: string }>
-  updateProfile: (profileData: any) => Promise<{ success: boolean; message: string }>
+  updateProfile: (profileData: ProfileState) => Promise<{ success: boolean; message: string }>
   token: string | null
 }
 
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/client/auth/login")
   }
 
-  const register = async (userData: any) => {
+  const register = async (userData: RegisterUserData) => {
     try {
       await UserService.register(userData)
       return { success: true, message: "Registration successful" }
@@ -125,11 +125,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateProfile = async (profileData: any) => {
+  const updateProfile = async (profileData: ProfileState) => {
     try {
       if (!state.token) throw new Error("Not authenticated")
-      const user = await UserService.updateProfile(state.token, profileData)
-      setState(prev => ({ ...prev, user }))
+      const user = await UserService.updateProfile(state.token, {
+        user: {
+          username: profileData.username,
+          email: profileData.email
+        },
+        nationality: profileData.nationality,
+        phone_number: profileData.phone_number ?? undefined,
+        avatar: profileData.photoUrl
+      })
+      if (user.user) {
+        setState(prev => ({ ...prev, user: user.user ?? null }))
+      } else {
+        console.error("Invalid user data:", user)
+        throw new Error("Failed to update user profile")
+      }
       return { success: true, message: "Profile updated" }
     } catch (error) {
       console.error("Profile update error:", error)

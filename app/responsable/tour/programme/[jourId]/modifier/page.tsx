@@ -10,18 +10,15 @@ import { useToast } from "@/components/ui/use-toastx";
 import { VoyageService } from "@/services/service-voyages";
 import { useAuth } from "@/hooks/useAuth";
 import { ProgrammeJour } from "@/types/ProgrammeJour";
-
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ModifierProgrammeJourPage() {
   const { jourId } = useParams();
   const searchParams = useSearchParams();
   const voyageId = searchParams.get("voyageId");
-  console.log(jourId, voyageId);
   const router = useRouter();
   const { toast } = useToast();
   const { token, isAuthLoading } = useAuth();
-
-
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<ProgrammeJour>({
     id: 0,
@@ -33,7 +30,6 @@ export default function ModifierProgrammeJourPage() {
   });
 
   useEffect(() => {
-    // Ne rien faire tant que l'auth n'est pas encore chargée
     if (isAuthLoading) return;
 
     if (!token) {
@@ -41,6 +37,7 @@ export default function ModifierProgrammeJourPage() {
         variant: "destructive",
         title: "Accès refusé",
         description: "Vous devez être un responsable pour accéder à cette page.",
+        createdAt: Date.now()
       });
       router.push("/");
       return;
@@ -51,14 +48,13 @@ export default function ModifierProgrammeJourPage() {
     const fetchJour = async () => {
       try {
         const data = await VoyageService.getProgrammeJour(Number(voyageId), Number(jourId));
-        console.log(data);
-
         setForm(data);
-      } catch (err) {
+      } catch {
         toast({
           variant: "destructive",
           title: "Erreur",
           description: "Erreur lors du chargement des données.",
+          createdAt: Date.now()
         });
       } finally {
         setLoading(false);
@@ -67,7 +63,6 @@ export default function ModifierProgrammeJourPage() {
 
     fetchJour();
   }, [jourId, voyageId, token, isAuthLoading, router, toast]);
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({
@@ -80,33 +75,40 @@ export default function ModifierProgrammeJourPage() {
     e.preventDefault();
     if (!token) return;
 
-    // On ajoute l'ID du voyage dans les données envoyées
     const dataToSend = {
       ...form,
-      voyage: voyageId, // Ajout du voyage à l'objet
+      voyage: voyageId,
     };
 
     try {
-      console.log("Données envoyées :", dataToSend);
       await VoyageService.updateProgrammeJour(Number(voyageId), Number(jourId), dataToSend, token);
-
       toast({
         title: "Succès",
         description: "Jour mis à jour avec succès !",
+        createdAt: Date.now()
       });
-
       router.push(`/responsable/tour/voyages/${voyageId}`);
-    } catch (err) {
+    } catch {
       toast({
-        variant: "destructive",
         title: "Erreur",
         description: "Échec de la mise à jour.",
+        createdAt: Date.now(),
       });
     }
   };
 
-
-  /*   if (loading) return <p className="mt-6 text-center">Chargement...</p>; */
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto py-6 px-4 space-y-4 animate-pulse">
+        <Skeleton className="h-8 w-1/2 rounded" />
+        <Skeleton className="h-10 w-full rounded" />
+        <Skeleton className="h-24 w-full rounded" />
+        <Skeleton className="h-10 w-full rounded" />
+        <Skeleton className="h-10 w-full rounded" />
+        <Skeleton className="h-10 w-40 mt-6 rounded" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto py-6 px-4">

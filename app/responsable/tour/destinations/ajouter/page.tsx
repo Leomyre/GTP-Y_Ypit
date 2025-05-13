@@ -80,6 +80,7 @@ export default function AjouterDestinationPage() {
             toast({
                 title: "Destination ajoutée",
                 description: `${form.nom} a été enregistrée avec succès.`,
+                createdAt: Date.now()
             })
             router.push("/destinations")
         } catch (err) {
@@ -87,6 +88,7 @@ export default function AjouterDestinationPage() {
                 variant: "destructive",
                 title: "Erreur",
                 description: "Impossible d'ajouter la destination.",
+                createdAt: Date.now()
             })
             console.error(err)
         }

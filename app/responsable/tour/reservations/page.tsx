@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,17 +11,18 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation"
 import { ReservationService } from "@/services/service-reservations";
-import { Reservation, VoyageOption, ReservationStats } from "@/types/Reservation";
+import { Reservation, ReservationStats } from "@/types/Reservation";
+import { Voyage } from "@/types/voyages";
 import { Badge } from "@/components/ui/badge"
 import VoyageService from "@/services/service-voyages";
 import { StatCardReservation } from "@/components/StatCardReservation";
-import { AIInsights } from "@/components/AIInsights";
+import { ReservationInsights } from "@/components/ReservationInsights";
 
 export default function ResponsibleReservationsPage() {
   const { user, token } = useAuth();
   const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [voyages, setVoyages] = useState<VoyageOption[]>([]);
+  const [voyages, setVoyages] = useState<Voyage[]>([]);
   const [stats, setStats] = useState<ReservationStats | null>(null);
   const [selectedVoyage, setSelectedVoyage] = useState<number | "all">("all");
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ export default function ResponsibleReservationsPage() {
     statut: reservation.est_confirmee ? "confirmé" : reservation.statut_paiement
   }));
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!token) {
       router.push("/responsable/auth/login")
       return;
@@ -56,17 +57,17 @@ export default function ResponsibleReservationsPage() {
       setReservations(allReservations.results || []);
       setStats(statistiques);
       setError(null);
-    } catch (err: any) {
+    } catch (err) {
       setError("Erreur lors du chargement des données.");
       console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, router, user?.id]);
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, [token, fetchData]);
 
   const filteredReservations = selectedVoyage === "all"
     ? reservations
@@ -82,15 +83,15 @@ export default function ResponsibleReservationsPage() {
 
   const getStatusBadge = (reservation: Reservation) => {
     if (reservation.est_confirmee) {
-      return <Badge variant="success">Confirmé</Badge>;
+      return <Badge variant="outline">Confirmé</Badge>;
     }
     switch (reservation.statut_paiement) {
       case 'complete':
-        return <Badge variant="primary">Payé</Badge>;
+        return <Badge variant="outline">Payé</Badge>;
       case 'partiel':
         return <Badge variant="secondary">Partiel</Badge>;
       default:
-        return <Badge variant="warning">En attente</Badge>;
+        return <Badge variant="default">En attente</Badge>;
     }
   };
 
@@ -168,7 +169,7 @@ export default function ResponsibleReservationsPage() {
                 </ResponsiveContainer>
               </div>
               <div className="h-[300px]">
-                <h3 className="text-center mb-2">Chiffre d'Affaires</h3>
+                <h3 className="text-center mb-2">Chiffre d&aposAffaires</h3>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={graphData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -276,10 +277,7 @@ export default function ResponsibleReservationsPage() {
 
       {/* Section AI Insights */}
       {!loading && reservations.length > 0 && (
-        <AIInsights
-          data={reservationsData}
-          pageType="reservations"
-        />
+        <ReservationInsights reservations={reservationsData} />
       )}
     </div>
   );

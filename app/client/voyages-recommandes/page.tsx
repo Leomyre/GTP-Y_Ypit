@@ -66,7 +66,7 @@ export default function VoyagesRecommandes() {
           ))
         ) : (
           <div className="text-gray-500 col-span-full text-center">
-            Aucun voyage recommandé pour l'instant.
+            Aucun voyage recommandé pour l&aposinstant.
           </div>
         )}
       </div>

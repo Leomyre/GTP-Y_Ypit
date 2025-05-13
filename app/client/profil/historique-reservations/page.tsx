@@ -11,7 +11,7 @@ import { format, parseISO, isValid } from "date-fns"
 import { fr } from "date-fns/locale"
 import { Badge } from "@/components/ui/badge"
 import { ReservationService } from "@/services/service-reservations"
-import { ReservationCardProps } from "@/types/Reservation"
+import { Reservation } from "@/types/Reservation"
 import { useAuth } from "@/hooks/useAuth"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/use-toastx"
@@ -19,7 +19,7 @@ import { useToast } from "@/components/ui/use-toastx"
 const HistoriqueReservations = () => {
   const router = useRouter()
   const { toast } = useToast()
-  const [reservations, setReservations] = useState<ReservationCardProps[]>([])
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
   const { token } = useAuth()
 
@@ -49,7 +49,7 @@ const HistoriqueReservations = () => {
         toast({
           title: "Erreur",
           description: "Impossible de charger les réservations",
-          variant: "destructive",
+          createdAt: Date.now(),
         })
       } finally {
         setLoading(false)
@@ -120,8 +120,8 @@ const HistoriqueReservations = () => {
                   <TableHead className="w-[120px]">Référence</TableHead>
                   <TableHead>Voyage</TableHead>
                   <TableHead>Destination</TableHead>
-                  {/*                   <TableHead>Date de départ</TableHead>
-                  <TableHead>Prix</TableHead> */}
+                  <TableHead>Date de départ</TableHead>
+                  <TableHead>Prix</TableHead>
                   <TableHead>Statut</TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,39 +129,47 @@ const HistoriqueReservations = () => {
                 {reservations.map((reservation) => (
                   <TableRow key={reservation.id}>
                     <TableCell className="font-mono text-xs">
-                      {reservation.reference || "N/A"}
+                      {reservation.id || "N/A"}
                     </TableCell>
                     <TableCell>
                       <button
-                        onClick={() => handleVoyageClick(reservation.voyage.titre)}
+                        onClick={() => handleVoyageClick(reservation.voyage.id)}
                         className="text-green-600 hover:underline font-medium focus:outline-none"
                       >
                         {reservation.voyage.titre || "Nom inconnu"}
                       </button>
                     </TableCell>
-                    <TableCell className="flex items-center space-x-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span>{reservation.voyage.destination_nom || "Destination inconnue"}</span>
-                    </TableCell>
-                    <TableCell className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      <span>{reservation.date_depart ? safeFormatDate(reservation.date_depart) : "N/A"}</span>
-                    </TableCell>
-                    <TableCell className="flex items-center space-x-2">
-                      <CreditCard className="h-4 w-4 text-gray-500" />
-                      <span>
-                        {reservation.prix_total ?
-                          new Intl.NumberFormat("fr-FR", {
-                            style: "currency",
-                            currency: "EUR"
-                          }).format(reservation.prix_total) :
-                          "N/A"}
-                      </span>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-gray-500" />
+                        <span>{reservation.voyage.destination_nom || "Destination inconnue"}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {reservation.statut ?
-                        getStatusBadge(reservation.statut) :
-                        <Badge>Inconnu</Badge>}
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <span>{reservation.date_depart ? safeFormatDate(reservation.date_depart) : "N/A"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <CreditCard className="h-4 w-4 text-gray-500" />
+                        <span>
+                          {reservation.prix_total
+                            ? new Intl.NumberFormat("fr-FR", {
+                              style: "currency",
+                              currency: "EUR",
+                            }).format(reservation.prix_total)
+                            : "N/A"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {reservation.statut ? (
+                        getStatusBadge(reservation.statut)
+                      ) : (
+                        <Badge>Inconnu</Badge>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

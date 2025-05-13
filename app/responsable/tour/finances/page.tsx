@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import FinancialChart from "@/components/FinancialChart"
-import { AIInsights } from "@/components/AIInsights"
+import { AIInsights } from "@/components/AIInsightBase"
 
 const monthlyRevenue = [
   { name: "Jan", revenue: 4000 },

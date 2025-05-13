@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { UrlConfig } from "@/utils/Config";
-import { Destination } from "@/types/Destinations";
+import { Destination, CreateDestination } from "@/types/Destinations";
 
 export const DestinationService = {
     getDestinations: async (): Promise<Destination[]> => {
@@ -15,7 +15,7 @@ export const DestinationService = {
         }
     },
 
-    createDestination: async (data: any, token: string) => {
+    createDestination: async (data: CreateDestination, token: string) => {
         const res = await axios.post(`${UrlConfig.apiBaseUrl}/voyages/destinations/`, data, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -66,7 +66,16 @@ export const DestinationService = {
                 success: true,
                 data: {
                     totalRevenue: response.data.data.total_revenue || 0,
-                    byDestination: response.data.data.by_destination.map((item: any) => ({
+                    byDestination: response.data.data.by_destination.map((item: {
+                        id: number;
+                        nom: string;
+                        pays: string;
+                        adult_reservations?: number;
+                        child_reservations?: number;
+                        adult_revenue?: number;
+                        child_revenue?: number;
+                        total_revenue?: number;
+                    }) => ({
                         id: item.id,
                         name: item.nom,
                         country: item.pays,
@@ -76,13 +85,18 @@ export const DestinationService = {
                         childRevenue: item.child_revenue || 0,
                         totalRevenue: item.total_revenue || 0
                     })),
-                    byCountry: response.data.data.by_country.map((item: any) => ({
+                    byCountry: response.data.data.by_country.map((item: {
+                        pays: string;
+                        total_revenue?: number;
+                        destination_count?: number;
+                        voyage_count?: number;
+                    }) => ({
                         country: item.pays,
                         totalRevenue: item.total_revenue || 0,
                         destinationCount: item.destination_count || 0,
                         voyageCount: item.voyage_count || 0
                     })),
-                    monthlyTrend: response.data.data.monthly_trend.map((item: any) => ({
+                    monthlyTrend: response.data.data.monthly_trend.map((item: { month: string; total_revenue?: number; reservation_count?: number }) => ({
                         month: item.month,
                         totalRevenue: item.total_revenue || 0,
                         reservationCount: item.reservation_count || 0

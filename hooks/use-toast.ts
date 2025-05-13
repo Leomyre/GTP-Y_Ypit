@@ -13,11 +13,7 @@ export type ToastProps = {
   variant?: "default" | "destructive" | "success" | "warning" | "info"
   duration?: number
 }
-
-type ToastActionElement = React.ReactElement<{
-  altText: string
-  onClick: () => void
-}>
+  
 
 export type Toast = ToastProps & {
   id: string
@@ -25,7 +21,7 @@ export type Toast = ToastProps & {
 }
 
 const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000
+
 
 type ToasterToast = Toast & {
   height?: number
@@ -70,7 +66,6 @@ interface State {
   toasts: ToasterToast[]
 }
 
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {

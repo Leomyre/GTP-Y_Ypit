@@ -25,7 +25,7 @@ export default function ResponsableLogin() {
     setIsLoading(true)
 
     try {
-      await login(email, password, "responsable")
+      await login(email, password)
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre espace responsable !",

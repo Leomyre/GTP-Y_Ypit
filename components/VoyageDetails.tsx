@@ -11,6 +11,7 @@ import { VoyageDetailsSkeleton } from "@/components/skeletons/voyage-details-ske
 import { useAuth } from "@/hooks/useAuth";
 import { ProgrammeAccordion } from "@/components/ProgrammeAccordion";
 import { Voyage } from "@/types/voyages";
+import { useCallback } from "react";
 import SectionDescription from "@/components/SectionDescription";
 
 export function VoyageDetails() {
@@ -22,7 +23,7 @@ export function VoyageDetails() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
-    const enregistrerVoyageConsulte = (voyageId: number, voyageDetails: Voyage) => {
+    const enregistrerVoyageConsulte = useCallback((voyageId: number, voyageDetails: Voyage) => {
         if (!token) return;
         try {
             const voyagesConsultes = JSON.parse(localStorage.getItem("voyagesConsultes") || "[]");
@@ -48,7 +49,7 @@ export function VoyageDetails() {
         } catch (error) {
             console.error("Erreur lors de l'enregistrement du voyage consulté:", error);
         }
-    };
+    }, [token])
 
     useEffect(() => {
         if (!id) return;
@@ -70,11 +71,11 @@ export function VoyageDetails() {
         };
 
         fetchData();
-    }, [id, isLoggedIn]);
+    }, [id, isLoggedIn, enregistrerVoyageConsulte]);
 
     const handleReservation = () => {
         if (!isLoggedIn) {
-            router.push("/client/auth/login");
+            router.replace("/client/auth/login");
         } else {
             router.push(`/client/paiement?voyageId=${id}`);
         }

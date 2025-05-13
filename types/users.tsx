@@ -2,6 +2,7 @@ export interface UserInfo {
     id: number
     username: string
     email: string
+    nationality: string
     phone_number: string | null
     user_type: string
     is_client: boolean
@@ -14,6 +15,16 @@ export interface UserInfo {
 export interface login {
     email?: string
     password: string
+}
+
+export interface RegisterUserData {
+    name: string
+    email: string
+    password: string
+    username: string
+    password2: string
+    user_type: string
+    [key: string]: unknown
 }
 
 export interface Profile {
@@ -30,7 +41,7 @@ export interface ProfileState {
     username: string
     nationality: string
     email: string
-    phone_number: string | null
+    phone_number: string
     photoUrl: string
 }
 

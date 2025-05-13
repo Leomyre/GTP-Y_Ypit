@@ -52,13 +52,14 @@ export const VoyageService = {
     },
 
     // Mise à jour d’un jour du programme
-    updateProgrammeJour: async (voyageId: number, jourId: number, data: ProgrammeJour) => {
+    updateProgrammeJour: async (voyageId: number, jourId: number, data: ProgrammeJour, token: string) => {
         try {
             const response = await axios.put(
                 `${BASE_URL}/voyages/${voyageId}/programmes/${jourId}/`,
                 data,
                 {
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         "Content-Type": "application/json"
                     }
                 }

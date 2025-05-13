@@ -3,26 +3,36 @@ import { ProgrammeJour } from "./ProgrammeJour";
 export interface Voyage {
     id: number;
     titre: string;
-    prix: string; // Note: c'est une string dans le JSON, pas un number
-    agence_nom: string; // Dans le JSON c'est juste l'ID, pas un objet complet
-    images?: string; // Rendre optionnel si pas toujours présent
-    description?: string; // Rendre optionnel si pas toujours présent
-    likes?: number; // Rendre optionnel si pas toujours présent
+    prix: string;
+    agence_nom: string;
+    images?: string;
+    description?: string;
+    likes?: number;
     ville_depart: string;
     niveau_confort: number;
     destination_nom: string;
-    programmes_jour: ProgrammeJour[]; // Liste des programmes de chaque jour
-    is_responsable: boolean; // Indique si l'utilisateur est responsable
+    programmes_jour: ProgrammeJour[];
+    is_responsable: boolean;
+    date_consultation: string;
 }
 export interface CreateVoyage {
     titre: string;
-    prix: string; // Note: c'est une string dans le JSON, pas un number // Dans le JSON c'est juste l'ID, pas un objet complet
-    image?: string; // Rendre optionnel si pas toujours présent
-    description?: string; // Rendre optionnel si pas toujours présent
+    prix: string;
+    image?: string;
+    description?: string;
     ville_depart: string;
     niveau_confort: number;
 }
 
+export interface UpdateVoyage {
+    titre: string;
+    prix: string;
+    image?: string;
+    description?: string;
+    ville_depart: string;
+    niveau_confort: number;
+    destination_id: number;
+}
 export interface VoyageWithStats extends Voyage {
     nb_reservations: number;
     reservations_confirmees: number;

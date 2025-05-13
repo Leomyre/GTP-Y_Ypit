@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { MapPin, BarChart2 } from "lucide-react"
-import { VoyageService } from "@/services/service-voyages" // Ajustez le chemin selon votre structure
-import { Voyage } from "@/types/voyages" // Assurez-vous que ce chemin est correct
+import { VoyageService } from "@/services/service-voyages"
+import { VoyageSkeleton } from "@/components/skeletons/voyage-skeleton"
+import { Voyage } from "@/types/voyages"
 
 export default function ClientAccueil() {
   const router = useRouter()
@@ -50,13 +51,23 @@ export default function ClientAccueil() {
   }
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Chargement en cours...</div>
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">
+          Chargement des voyages...
+        </h1>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <VoyageSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   if (error) {
     return <div className="flex justify-center items-center h-64 text-red-500">{error}</div>
   }
-  console.log(voyages);
 
   return (
     <>

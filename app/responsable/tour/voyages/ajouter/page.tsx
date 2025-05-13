@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,13 +47,7 @@ export default function AjouterVoyage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedImage(file);
-
-      // Créer une preview de l'image
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -94,11 +89,20 @@ export default function AjouterVoyage() {
     }
 
     try {
-      await VoyageService.createVoyage(formDataToSend, token);
+      const voyageData = {
+        titre: formData.titre,
+        description: formData.description,
+        ville_depart: formData.ville_depart,
+        destination: formData.destination,
+        prix: formData.prix,
+        niveau_confort: parseInt(formData.niveau_confort, 10),
+        image: selectedImage ? selectedImage.name : undefined, // Use file name or undefined
+      };
+      await VoyageService.createVoyage(voyageData, token);
       router.push("/responsable/tour/voyages");
     } catch (err) {
       console.error("Erreur lors de la création du voyage:", err);
-      if (err.response && err.response.status === 400) {
+      if (err instanceof Error && (err as { response?: { status: number } }).response?.status === 400) {
         setError("Une erreur s'est produite avec la destination. Assurez-vous qu'elle existe.");
       } else {
         setError(err instanceof Error ? err.message : "Une erreur est survenue");
@@ -168,11 +172,12 @@ export default function AjouterVoyage() {
                   </label>
                 </div>
                 {imagePreview && (
-                  <div className="w-20 h-20 rounded-md overflow-hidden border border-gray-200">
-                    <img
+                  <div className="w-20 h-20 rounded-md overflow-hidden border border-gray-200 relative">
+                    <Image
                       src={imagePreview}
                       alt="Preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </div>
                 )}

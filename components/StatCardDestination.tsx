@@ -1,18 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, Equal } from "lucide-react"
+import { ArrowUp, ArrowDown, TrendingUp, Equal } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { StatCardProps } from "@/types/Destinations"
 
-interface StatCardProps {
-    title: string
-    value: string | number
-    description?: string
-    change?: number // Pourcentage de changement
-    loading?: boolean
-    icon?: React.ReactNode
-    className?: string
-}
 
 export function StatCardDestination({
     title,

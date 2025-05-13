@@ -4,7 +4,8 @@ import {
     Reservation,
     Paiement,
     ReservationStats,
-    PaginatedResponse
+    PaginatedResponse,
+
 } from "@/types/Reservation";
 import { Client } from "@/types/users";
 
@@ -16,7 +17,7 @@ export const ReservationService = {
             voyage_id: number;
             nombre_adultes: number;
             nombre_enfants: number;
-            special_requests?: string;
+            date_depart?: string;
         },
         token: string
     ): Promise<Reservation> => {
@@ -67,6 +68,37 @@ export const ReservationService = {
         return response.data;
     },
 
+    /**
+     * Vérifie l'état de réservation pour un voyage
+     * Retourne:
+     * - status: 'nouvelle_reservation' | 'paiement_requis' | 'deja_reserve'
+     * - message: string descriptif
+     * - reservation_id?: number (si réservation existe)
+     * - montant_restant?: number (si paiement requis)
+     */
+    verifierReservation: async (
+        voyageId: number,
+        token: string
+    ): Promise<{
+        status: 'nouvelle_reservation' | 'paiement_requis' | 'deja_reserve';
+        message: string;
+        reservation_id?: number;
+        montant_restant?: number;
+    }> => {
+        try {
+            const response = await axios.post(
+                `${BASE_URL}verifier-reservation/`,
+                { voyage: voyageId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la vérification de réservation:", error);
+            throw error;
+        }
+    },
+
+
     getMyVoyages: async (token: string): Promise<VoyageWithStats[]> => {
         try {
             const response = await axios.get(`${BASE_URL}mes-voyages/`, {
@@ -105,9 +137,9 @@ export const ReservationService = {
             date_max?: string;
             page?: number;
         }
-    ): Promise<PaginatedResponse<Client>> => {
+    ): Promise<Client> => {
         try {
-            const response = await axios.get<PaginatedResponse<Client>>(`${BASE_URL}clients/`, {
+            const response = await axios.get<Client>(`${BASE_URL}clients/`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params: {
                     ...params,

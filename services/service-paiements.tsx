@@ -2,7 +2,7 @@
 import axios from "axios";
 import { UrlConfig } from "@/utils/Config"; // Si tu as une configuration d'URL
 
-const BASE_URL = `${UrlConfig.apiBaseUrl}/paiements`;
+const BASE_URL = `${UrlConfig.apiBaseUrl}/reservations/paiements`;
 
 const PaiementService = {
     // Créer un paiement pour une réservation
@@ -17,9 +17,13 @@ const PaiementService = {
             dateExpiration: string;
             cvc: string;
         };
-    }) => {
+    }, token: string) => {
         try {
-            const response = await axios.post(`${BASE_URL}/`, data);
+            const response = await axios.post(`${BASE_URL}/`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             return response.data;
         } catch (error) {
             console.error("Erreur lors de la création du paiement:", error);
@@ -28,9 +32,13 @@ const PaiementService = {
     },
 
     // Récupérer les paiements par réservation
-    getPaiementsByReservation: async (reservationId: number) => {
+    getPaiementsByReservation: async (reservationId: number, token: string) => {
         try {
-            const response = await axios.get(`${BASE_URL}/?reservation=${reservationId}`);
+            const response = await axios.get(`${BASE_URL}/?reservation=${reservationId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             return response.data;
         } catch (error) {
             console.error("Erreur lors de la récupération des paiements:", error);

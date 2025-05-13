@@ -24,7 +24,7 @@ interface LoginResponse {
 interface ApiError {
     detail?: string
     error?: string
-    [key: string]: any
+    [key: string]: string | number | boolean | null | undefined
 }
 
 export const UserService = {
@@ -42,7 +42,6 @@ export const UserService = {
             if (!response.ok) return null
 
             const userData = await response.json()
-            console.log(userData);
 
             const rawUser = userData.user
 
@@ -54,7 +53,11 @@ export const UserService = {
                 username: rawUser.username,
                 user_type: rawUser.is_responsable ? "responsable" : rawUser.is_client ? "client" : "inconnu",
                 is_responsable: rawUser.is_responsable,
-                is_client: rawUser.is_client
+                is_client: rawUser.is_client,
+                nationality: rawUser.nationality,
+                phone_number: rawUser.phone_number,
+                first_name: rawUser.first_name,
+                last_name: rawUser.last_name
             }
         } catch (error) {
             console.error("Auth verification error:", error)
@@ -85,7 +88,7 @@ export const UserService = {
     /**
      * Enregistre un nouvel utilisateur
      */
-    async register(userData: RegisterUserData): Promise<any> {
+    async register(userData: RegisterUserData): Promise<{ success: boolean; message: string }> {
         const formattedData = {
             email: userData.email,
             username: userData.username,
@@ -100,7 +103,7 @@ export const UserService = {
             phone_number: userData.phone_number || "",
         }
 
-        const response = await fetch(`${UrlConfig.apiBaseUrl}/accounts/register/`, {
+        const response = await fetch(`${UrlConfig.apiBaseUrl}/auth/register/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -122,7 +125,7 @@ export const UserService = {
                 if (errorData[field]) {
                     errorMessage = Array.isArray(errorData[field])
                         ? errorData[field].join(", ")
-                        : errorData[field]
+                        : String(errorData[field])
                     break
                 }
             }
@@ -156,35 +159,55 @@ export const UserService = {
     /**
      * Met à jour le profil utilisateur
      */
-    async updateProfile(token: string, profileData: {
-        username?: string;
-        nationality?: string;
-        email?: string;
-        phone_number?: string
-
-    }): Promise<UserInfo> {
-        const response = await fetch(`${UrlConfig.apiBaseUrl}/auth/update-profile/`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(profileData),
-
-        })
-        console.log(response)
-
-        if (!response.ok) {
-            const errorData: ApiError = await response.json()
-            throw new Error(errorData.detail || "Profile update failed")
+    async updateProfile(
+        token: string,
+        profileData: {
+            user: {
+                username: string;
+                email: string;
+            };
+            nationality: string;
+            phone_number: string;
+            avatar: string;
         }
+    ): Promise<{ success: boolean; message: string; user?: UserInfo }> {
+        try {
+            const response = await fetch(`${UrlConfig.apiBaseUrl}/auth/profiles/update-profile/`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(profileData),
+            });
 
-        return response.json()
+            console.log("Réponse du serveur:", response);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Détails de l'erreur:", errorData);
+                return {
+                    success: false,
+                    message: errorData.detail || "Échec de la mise à jour du profil",
+                };
+            }
+
+            const updatedUser = await response.json();
+            return {
+                success: true,
+                message: "Profil mis à jour avec succès",
+                user: updatedUser,
+            };
+        } catch (error) {
+            console.error("Erreur réseau:", error);
+            return {
+                success: false,
+                message: "Erreur réseau lors de la mise à jour du profil",
+            };
+        }
     },
 
-    /**
-     * Rafraîchit le token d'accès
-     */
+
     async refreshToken(refreshToken: string): Promise<{ access: string }> {
         const response = await fetch(`${UrlConfig.apiBaseUrl}/auth/token/refresh/`, {
             method: "POST",
@@ -200,4 +223,5 @@ export const UserService = {
 
         return response.json()
     }
+
 }

@@ -1,12 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
-import { Search, Navigation, X, Star } from "lucide-react"
+import { Search, Navigation, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Map from "@/components/Map"
@@ -35,15 +34,14 @@ const MapListener = ({ onCoordinatesSelected }: { onCoordinatesSelected: (lat: n
       onCoordinatesSelected(lat, lng)
     }
 
-    window.addEventListener("map-click" as any, handleMapClick)
-    return () => window.removeEventListener("map-click" as any, handleMapClick)
+    window.addEventListener("map-click", handleMapClick as EventListener)
+    return () => window.removeEventListener("map-click", handleMapClick as EventListener)
   }, [onCoordinatesSelected])
 
   return null
 }
 
 export default function CarteDestinations() {
-  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [priceRange, setPriceRange] = useState([0, 3000])
   const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null)
@@ -66,7 +64,7 @@ export default function CarteDestinations() {
         toast({
           title: "Erreur",
           description: "Impossible de charger les destinations",
-          variant: "destructive"
+          createdAt: Date.now(),
         })
       } finally {
         setLoading(false)
@@ -78,13 +76,13 @@ export default function CarteDestinations() {
   const filteredDestinations = useMemo(() => {
     return destinations.filter(dest => {
       try {
-        // Filtre texte
+        // Filtre nom
         const searchMatch = !searchTerm ||
           [dest.nom, dest.pays].some(
             field => field?.toLowerCase().includes(searchTerm.toLowerCase())
           );
 
-        // Filtre prix - Nouvelle logique
+        // Filtre prix 
         const hasValidVoyage = dest.voyages_ids?.some(v => {
           const prix = typeof v.prix === 'number' ? v.prix : parseFloat(v.prix || '0');
           return !isNaN(prix) && prix >= priceRange[0] && prix <= priceRange[1];
@@ -125,6 +123,7 @@ export default function CarteDestinations() {
       toast({
         title: "Destinations trouvées",
         description: `${nearbyDestinations.length} destination(s) dans un rayon de ${searchRadius} km`,
+        createdAt: Date.now(),
       })
     }
   }, [searchRadius, nearbyDestinations.length])
@@ -152,7 +151,7 @@ export default function CarteDestinations() {
                 key={voyage.id}
                 voyage={{
                   ...voyage,
-                  prix: voyage.prix.toString(),
+                  prix: (voyage.prix ?? 0).toString(),
                   destination_nom: voyage.destination_nom || "Destination inconnue"
                 }}
               />

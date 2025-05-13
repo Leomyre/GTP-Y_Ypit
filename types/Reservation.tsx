@@ -8,6 +8,7 @@ export interface Reservation {
     voyage: {
         id: number;
         titre: string;
+        destination_nom: string;
         prix_par_personne: number;
         reduction_enfant?: boolean;
         responsable?: {
@@ -27,9 +28,11 @@ export interface Reservation {
     nombre_enfants: number;
     special_requests?: string;
     date_reservation: string;
+    date_depart: string;
     est_confirmee: boolean;
     prix_total: number;
-    statut_paiement: 'en_attente' | 'partiel' | 'complete' | 'rembourse' | 'annule';
+    statut: string;
+    statut_paiement?: string,
     paiements?: Paiement[];
 }
 
@@ -57,7 +60,7 @@ export interface PaginatedResponse<T> {
 // Interface pour les statistiques de réservations
 export interface ReservationStats {
     total_reservations: number;
-    reservations_confirmees: number;
+    total_reservations_confirmees: number;
     chiffre_affaire: number;
     moyenne_par_reservation: number;
     par_voyage: Array<{

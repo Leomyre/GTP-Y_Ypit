@@ -2,55 +2,116 @@
 
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { VoyageService } from "@/services/service-voyages" // Ajustez le chemin selon votre structure
+import { VoyageService } from "@/services/service-voyages"
 import { Voyage } from "@/types/voyages"
 import { VoyageCard } from "@/components/VoyageCard"
-
+import { VoyageSkeleton } from "@/components/skeletons/voyage-skeleton"
+import VoyageFilters, { FiltresVoyage } from "@/components/VoyageFilters"
 
 export default function RechercheVoyages() {
   const searchParams = useSearchParams()
   const searchQuery = searchParams.get("q")
   const [voyages, setVoyages] = useState<Voyage[]>([])
-  const [resultats, setResultats] = useState(voyages)
-
+  const [resultats, setResultats] = useState<Voyage[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [filtres, setFiltres] = useState<FiltresVoyage>({
+    ordre: "asc",
+    prixMin: 0,
+    prixMax: 10000,
+    confort: "",
+  })
 
   useEffect(() => {
     const fetchVoyages = async () => {
       try {
-        const data = await VoyageService.getVoyages();
-        setVoyages(data); // Utilise directement le tableau retourné
-        setLoading(false);
+        const data = await VoyageService.getVoyages()
+        setVoyages(data)
+        setLoading(false)
       } catch (err) {
-        setError("Erreur lors de la récupération des voyages");
-        setLoading(false);
-        console.error(err);
+        setError("Erreur lors de la récupération des voyages")
+        setLoading(false)
+        console.error(err)
       }
-    };
+    }
 
-    fetchVoyages();
-  }, []);
+    fetchVoyages()
+  }, [])
 
   useEffect(() => {
+    let filtered = [...voyages]
+
     if (searchQuery) {
-      const filteredVoyages = voyages.filter(
-        (voyage) =>
-          voyage.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          voyage.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          voyage.ville_depart.toLowerCase().includes(searchQuery.toLowerCase()),
+      const searchWords = searchQuery.toLowerCase().split(" ")
+      filtered = filtered.filter((voyage) =>
+        searchWords.some((word) =>
+          voyage.titre.toLowerCase().includes(word) ||
+          voyage.destination_nom.toLowerCase().includes(word) ||
+          voyage.ville_depart.toLowerCase().includes(word)
+        )
       )
-      setResultats(filteredVoyages)
-    } else {
-      setResultats(voyages)
     }
-  }, [searchQuery])
+
+    // Appliquer les filtres
+    filtered = filtered.filter((voyage) => {
+      const prixNum = parseFloat(voyage.prix) // important
+      return (
+        prixNum >= filtres.prixMin &&
+        prixNum <= filtres.prixMax &&
+        (filtres.confort === "" || voyage.niveau_confort === Number(filtres.confort))
+      )
+    })
+
+
+    // Tri
+    filtered.sort((a, b) => {
+      if (filtres.ordre === "asc") {
+        return a.titre.localeCompare(b.titre)
+      } else {
+        return b.titre.localeCompare(a.titre)
+      }
+    })
+
+    setResultats(filtered)
+  }, [searchQuery, voyages, filtres])
+
+  const handleFilterChange = (nouveauxFiltres: FiltresVoyage) => {
+    setFiltres(nouveauxFiltres)
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">
+          Chargement des voyages...
+        </h1>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <VoyageSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">
-        Résultats de recherche pour &quot{searchQuery}&quot
+        Résultats de recherche pour &quot;{searchQuery}&quot;
       </h1>
+
+      <VoyageFilters onFilterChange={handleFilterChange} />
+
+      <div className="mb-4 text-gray-700 dark:text-gray-300">
+        <p className="text-sm">
+          <span className="font-medium">Tri :</span> {filtres.ordre === "asc" ? "A → Z" : "Z → A"} |
+          <span className="font-medium ml-2">Prix :</span> {filtres.prixMin}€ - {filtres.prixMax}€ |
+          <span className="font-medium ml-2">Confort :</span> {filtres.confort ? "★".repeat(Number(filtres.confort)) : "Tous"}
+        </p>
+      </div>
+
+
+
       {resultats.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {resultats.map((voyage) => (
@@ -59,10 +120,9 @@ export default function RechercheVoyages() {
         </div>
       ) : (
         <p className="text-center text-gray-600 dark:text-gray-400">
-          Aucun voyage trouvé pour votre recherche. Essayez d&aposautres termes.
+          Aucun voyage trouvé pour votre recherche. Essayez d&apos;autres termes ou ajustez les filtres.
         </p>
       )}
     </div>
   )
 }
-

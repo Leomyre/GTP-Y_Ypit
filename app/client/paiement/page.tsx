@@ -14,11 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VoyageService } from "@/services/service-voyages";
-import { ReservationService } from "@/services/service-reservations";
-import PaiementService from "@/services/service-paiements";
-import { toast } from "@/components/ui/use-toastx";
 import { useAuth } from "@/hooks/useAuth";
 import { Voyage } from "@/types/voyages"
+import { useReservation } from "@/hooks/useReservation";
+import { usePaiement } from "@/hooks/usePaiement";
 
 export default function Paiement() {
   const router = useRouter();
@@ -26,9 +25,10 @@ export default function Paiement() {
   const voyageId = searchParams.get("voyageId");
   const { token } = useAuth();
   const [dateDepart, setDateDepart] = useState<string>("");
-  const [voyage, setVoyage] = useState<Voyage[]>([])
+  const [voyage, setVoyage] = useState<Voyage | null>(null)
   const [loadingVoyage, setLoadingVoyage] = useState(true);
-
+  const { createReservation } = useReservation();
+  const { payer } = usePaiement();
   const [paiement, setPaiement] = useState({
     numeroCarte: "",
     nomCarte: "",
@@ -39,8 +39,6 @@ export default function Paiement() {
 
   const [nombreAdultes, setNombreAdultes] = useState(1);
   const [nombreEnfants, setNombreEnfants] = useState(0);
-  const [reservationId, setReservationId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!voyageId) return;
@@ -68,49 +66,36 @@ export default function Paiement() {
   };
 
   const handleReservationOnly = async () => {
-    if (!voyage) return;
-
-    setLoading(true);
+    if (!voyage || !token) return;
     try {
-      const reservation = await ReservationService.createReservation({
-        voyage_id: voyage.id,
-        nombre_adultes: nombreAdultes,
-        nombre_enfants: nombreEnfants,
-        date_depart: dateDepart,
-      }, token);
-
-      toast.success("Réservation créée avec succès !");
-      router.push("/client/mes-reservations");
-    } catch (error) {
-      console.error("Erreur de réservation :", error);
-      toast.error("Erreur lors de la réservation.");
-    } finally {
-      setLoading(false);
-    }
+      await createReservation({
+        voyageId: voyage.id,
+        nombreAdultes,
+        nombreEnfants,
+        dateDepart,
+        token,
+      });
+      router.push("/client/profil/historique-reservations");
+    } catch { }
   };
-  useEffect(() => {
-    console.log("Token d’authentification :", token);
-  }, [token]);
 
   const handlePaiementAndReservation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!voyage) return;
+    if (!voyage || !token) return;
 
-    setLoading(true);
     try {
-      const reservation = await ReservationService.createReservation({
-        voyage_id: voyage.id,
-        nombre_adultes: nombreAdultes,
-        nombre_enfants: nombreEnfants,
-        date_depart: dateDepart,
-      }, token);
-      setReservationId(reservation.id);
+      const reservation = await createReservation({
+        voyageId: voyage.id,
+        nombreAdultes,
+        nombreEnfants,
+        dateDepart,
+        token,
+      });
 
-      await PaiementService.createPaiement({
-        reservation: reservation.id,
+      await payer({
+        reservationId: reservation.id,
         montant: reservation.prix_total,
         methode: paiement.methodePaiement,
-        statut: "complete",
         details: {
           numeroCarte: paiement.numeroCarte,
           nomCarte: paiement.nomCarte,
@@ -119,15 +104,10 @@ export default function Paiement() {
         },
       });
 
-      toast.success("Paiement effectué et réservation confirmée !");
-      router.push("/client/mes-reservations");
-    } catch (error) {
-      console.error("Erreur de paiement ou réservation :", error);
-      toast.error("Erreur lors du paiement.");
-    } finally {
-      setLoading(false);
-    }
+      router.push("/client/profil/historique-reservations");
+    } catch { }
   };
+
 
   if (loadingVoyage) {
     return <div className="text-center py-10">Chargement des informations du voyage...</div>;
@@ -137,9 +117,7 @@ export default function Paiement() {
     return <div className="text-center text-red-500 py-10">Erreur: Voyage introuvable.</div>;
   }
 
-
-  const totalParticipants = nombreAdultes + nombreEnfants;
-  const prixTotal = (nombreAdultes * voyage.prix) + (nombreEnfants * (voyage.prix * 0.7));
+  const prixTotal = (nombreAdultes * Number(voyage.prix ?? 0)) + (nombreEnfants * (Number(voyage.prix ?? 0) * 0.7));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -162,7 +140,7 @@ export default function Paiement() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label>Nombre d'adultes</Label>
+            <Label>Nombre d&aposadultes</Label>
             <Input
               type="number"
               min={1}
@@ -171,7 +149,7 @@ export default function Paiement() {
             />
           </div>
           <div>
-            <Label>Nombre d'enfants</Label>
+            <Label>Nombre d&aposenfants</Label>
             <Input
               type="number"
               min={0}
@@ -236,7 +214,7 @@ export default function Paiement() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="dateExpiration">Date d'expiration</Label>
+                    <Label htmlFor="dateExpiration">Date d&aposexpiration</Label>
                     <Input
                       id="dateExpiration"
                       name="dateExpiration"
@@ -260,10 +238,10 @@ export default function Paiement() {
             )}
 
             <div className="grid grid-cols-2 gap-4 pt-4">
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loadingVoyage}>
                 Payer maintenant
               </Button>
-              <Button type="button" onClick={handleReservationOnly} variant="outline" disabled={loading}>
+              <Button type="button" onClick={handleReservationOnly} variant="outline" disabled={loadingVoyage}>
                 Réserver sans payer
               </Button>
             </div>

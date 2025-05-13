@@ -1,146 +1,39 @@
+// components/AIInsightBase.tsx
 "use client"
-
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Lightbulb, Users, Calendar, MapPin, Star, TrendingUp, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Lightbulb, Star, TrendingUp, AlertCircle } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Insight } from "@/types/insights"
 
-interface Insight {
-  id: string
-  title: string
-  description: string
-  recommendation: string
-  priority: "high" | "medium" | "low"
-  metrics?: {
-    name: string
-    value: string | number
-    change?: number
-  }[]
+interface AIInsightBaseProps<T> {
+  data: T[]
+  pageType: "clients" | "reservations" | "voyages"
+  icon: React.ReactNode
+  generateInsights: (data: T[]) => Promise<Insight[]>
 }
 
-export function AIInsights({
+export function AIInsightBase<T>({
   data,
-  pageType
-}: {
-  data: any[],
-  pageType: "clients" | "reservations" | "destinations"
-}) {
+  pageType,
+  icon,
+  generateInsights
+}: AIInsightBaseProps<T>) {
   const [insights, setInsights] = useState<Insight[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
 
-  const generateInsights = async () => {
-    if (!apiKey) {
-      setError("Clé API non configurée")
-      return
-    }
-
+  const handleGenerate = async () => {
     setLoading(true)
     setError(null)
-
     try {
-      // Limite les données envoyées pour éviter les dépassements
-      const analysisData = data.slice(0, 50).map(item => {
-        if (pageType === "clients") {
-          return {
-            client: item.username,
-            reservations: item.reservations_count,
-            total_spent: item.total_spent,
-            last_booking: item.last_reservation_date
-          }
-        } else if (pageType === "reservations") {
-          return {
-            date: item.date,
-            destination: item.destination,
-            amount: item.amount,
-            status: item.status
-          }
-        } else {
-          return {
-            destination: item.name,
-            popularity: item.popularity,
-            average_price: item.average_price
-          }
-        }
-      })
-
-      const prompt = `
-        Tu es un expert en analyse de données pour agences de voyage. 
-        Analyse ces données ${pageType} et fournis 3 insights maximum avec:
-        - Un titre clair
-        - Une description concise
-        - Une recommandation actionnable
-        - Une priorité (high/medium/low)
-        - Des métriques pertinentes si nécessaire
-
-        Format de réponse STRICT en JSON valide:
-        {
-          "insights": [{
-            "title": string,
-            "description": string,
-            "recommendation": string,
-            "priority": "high"|"medium"|"low",
-            "metrics"?: [{
-              "name": string,
-              "value": string|number,
-              "change"?: number
-            }]
-          }]
-        }
-
-        Données à analyser: ${JSON.stringify(analysisData)}
-      `
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.5,
-            topP: 0.95,
-            maxOutputTokens: 2000
-          }
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || "Erreur API")
-      }
-
-      const result = await response.json()
-      const responseText = result.candidates[0].content.parts[0].text
-
-      // Extraction robuste du JSON
-      const jsonStart = responseText.indexOf('{')
-      const jsonEnd = responseText.lastIndexOf('}') + 1
-      const jsonString = responseText.slice(jsonStart, jsonEnd)
-
-      const parsedResponse = JSON.parse(jsonString)
-      if (!parsedResponse.insights) throw new Error("Format de réponse invalide")
-
-      // Ajout d'ID unique pour chaque insight
-      const insightsWithId = parsedResponse.insights.map((insight: any) => ({
-        ...insight,
-        id: `insight-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      }))
-
-      setInsights(insightsWithId)
-
-    } catch (err: any) {
-      setError(`Erreur: ${err.message}`)
-      console.error("Erreur Gemini API:", err)
+      const generatedInsights = await generateInsights(data)
+      setInsights(generatedInsights)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur inconnue s'est produite")
     } finally {
       setLoading(false)
     }
@@ -153,7 +46,7 @@ export function AIInsights({
           <AlertCircle className="h-3 w-3" /> Haute priorité
         </Badge>
       case "medium":
-        return <Badge variant="warning" className="flex items-center gap-1">
+        return <Badge variant="secondary" className="flex items-center gap-1">
           <TrendingUp className="h-3 w-3" /> Moyenne priorité
         </Badge>
       default:
@@ -168,17 +61,15 @@ export function AIInsights({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {pageType === "clients" ? <Users className="h-5 w-5" /> :
-              pageType === "reservations" ? <Calendar className="h-5 w-5" /> :
-                <MapPin className="h-5 w-5" />}
+            {icon}
             <CardTitle>
               Insights {pageType === "clients" ? "Clients" :
                 pageType === "reservations" ? "Réservations" :
-                  "Destinations"}
+                  "Voyages"}
             </CardTitle>
           </div>
           <Button
-            onClick={generateInsights}
+            onClick={handleGenerate}
             disabled={loading}
             size="sm"
             className="gap-1"
@@ -195,7 +86,7 @@ export function AIInsights({
           </Button>
         </div>
         <CardDescription className="pt-1">
-          Analyse intelligente par Gemini Flash
+          Analyse intelligente par IA
         </CardDescription>
       </CardHeader>
 
@@ -268,7 +159,7 @@ export function AIInsights({
             <Lightbulb className="h-10 w-10 text-muted-foreground mb-3" />
             <h4 className="font-medium text-muted-foreground">Aucune analyse générée</h4>
             <p className="text-sm text-muted-foreground mt-1">
-              Cliquez sur "Générer" pour obtenir des insights intelligents
+              Cliquez sur &quotGénérer&quot pour obtenir des insights intelligents
             </p>
           </div>
         )}

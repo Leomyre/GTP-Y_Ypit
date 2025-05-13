@@ -13,17 +13,18 @@ import { withAuth } from "@/components/withAuth"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
 import { History, Eye, Bell, LogOut, Settings } from "lucide-react"
-
+import { UrlConfig } from "@/utils/Config"
 const ProfilClient = () => {
   const [profile, setProfile] = useState({
     username: "",
     nationality: "",
     email: "",
     phone_number: "",
-    photoUrl: "/placeholder-user.png", // Valeur par défaut
-  })
+    photoFile: null as File | null,
+    photoUrl: "/placeholder-user.png" // Ajout du champ manquant
+  });
   const { toast } = useToast()
-  const { user, updateProfile, isAuthLoading, logout } = useAuth()
+  const { user, isAuthLoading, logout, token } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -33,57 +34,93 @@ const ProfilClient = () => {
         nationality: user.nationality || "",
         email: user.email || "",
         phone_number: user.phone_number || "",
-        photoUrl: user.avatar || "/placeholder-user.png", // Utilisez user.avatar ici
-      })
+        photoFile: null,
+        photoUrl: user.avatar || "/placeholder-user.png"
+      });
     }
-  }, [user])
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
-  const handlePhotoChange = (file: File) => {
-    // Ici, vous devriez implémenter la logique pour uploader la photo
-    console.log("Nouvelle photo de profil:", file.name)
-    // Pour l'exemple, on simule juste un changement d'URL
-    setProfile({ ...profile, photoUrl: URL.createObjectURL(file) })
-  }
+  const handlePhotoChange = (file: File | null) => {
+    setProfile(prev => ({
+      ...prev,
+      photoFile: file,
+      photoUrl: file ? URL.createObjectURL(file) : "/placeholder-user.png"
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+
     try {
-      // Adapter les données au format attendu par l'API
-      const profileUpdateData = {
-        nationality: profile.nationality,
-        username: profile.username,
-        email: profile.email,
-        phone_number: profile.phone_number,
-        // Ajouter d'autres champs si nécessaire
+      const formData = new FormData();
+
+      // Ajoutez cette vérification avant l'envoi
+      if (!profile.username || !profile.email) {
+        toast({
+          title: "Erreur",
+          description: "Le nom d'utilisateur et l'email sont obligatoires",
+          createdAt: Date.now(),
+        });
+        return;
       }
 
-      await updateProfile(profileUpdateData)
+      // Ajout des champs utilisateur
+      if (profile.username !== user?.username) {
+        formData.append('user.username', profile.username);
+      }
+      if (profile.email !== user?.email) {
+        formData.append('user.email', profile.email);
+      }
+      formData.append('user.nationality', profile.nationality);
+      formData.append('user.phone_number', profile.phone_number);
+
+      // Gestion de la photo
+      if (profile.photoFile) {
+        formData.append('photoUrl', profile.photoFile);
+      } else if (profile.photoUrl === "/placeholder-user.png" && user?.avatar) {
+        formData.append('remove_photo', 'true');
+      }
+
+      const response = await fetch(`${UrlConfig.apiBaseUrl}/auth/profiles/update_profile/`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || Object.values(errorData).flat().join(', '));
+      }
+
       toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été enregistrées avec succès.",
-      })
-    } catch (error: any) {
-      let errorMessage = "Une erreur est survenue lors de la mise à jour du profil."
-
-      // Gérer les erreurs spécifiques
-      if (error.message.includes("email")) {
-        errorMessage = "Cet email est déjà utilisé ou invalide."
-      } else if (error.message.includes("Non authentifié")) {
-        errorMessage = "Votre session a expiré. Veuillez vous reconnecter."
-        router.push("/client/auth/login")
-      }
-
+        title: "Succès",
+        description: "Profil mis à jour avec succès",
+        createdAt: Date.now(),
+      });
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: errorMessage,
-        variant: "destructive",
-      })
+        description: error instanceof Error ? error.message : "Erreur inconnue",
+        createdAt: Date.now(),
+      });
     }
-  }
+  };
+
+  useEffect(() => {
+    console.log("Valeurs actuelles du profil:", {
+      username: profile.username,
+      email: profile.email,
+      nationality: profile.nationality,
+      phone_number: profile.phone_number,
+      photoUrl: profile.photoUrl
+    });
+  }, [profile]);
 
   // Afficher un état de chargement si l'authentification est en cours
   if (isAuthLoading) {
@@ -120,7 +157,12 @@ const ProfilClient = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center mb-6">
-              <ProfilePhotoUpload initialPhotoUrl={profile.photoUrl} onPhotoChange={handlePhotoChange} />
+              <div className="flex justify-center mb-6">
+                <ProfilePhotoUpload
+                  initialPhotoUrl={profile.photoUrl}
+                  onPhotoChange={handlePhotoChange}
+                />
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">

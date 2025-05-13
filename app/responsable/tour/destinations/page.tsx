@@ -6,7 +6,7 @@ import { DestinationService } from "@/services/service-destinations"
 import { Destination } from "@/types/Destinations"
 import { DestinationCard } from "@/components/DestinationCard"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Star, MapPin, PlusCircle, Edit, Trash2 } from "lucide-react"
+import { MapPin, PlusCircle, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
@@ -58,11 +58,16 @@ export default function DestinationsPage() {
 
     setIsDeleting(true)
     try {
-      await DestinationService.deleteDestination(selectedDestination.id)
+      if (token) {
+        await DestinationService.deleteDestination(selectedDestination.id, token)
+      } else {
+        throw new Error("Token is required for this operation")
+      }
       toast({
         title: "Succès",
         description: "Destination supprimée avec succès",
-        variant: "default"
+        variant: "default",
+        createdAt: Date.now()
       })
       setDestinations(destinations.filter(d => d.id !== selectedDestination.id))
       setSelectedDestination(null)
@@ -70,7 +75,8 @@ export default function DestinationsPage() {
       toast({
         title: "Erreur",
         description: "Échec de la suppression de la destination",
-        variant: "destructive"
+        variant: "destructive",
+        createdAt: Date.now()
       })
       console.error(err)
     } finally {

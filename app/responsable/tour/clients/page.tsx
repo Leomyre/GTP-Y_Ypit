@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import ClientChart from "@/components/ClientChart"
-import { AIInsights } from "@/components/AIInsights"
+import { ClientInsights } from "@/components/ClientInsights"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ReservationService } from "@/services/service-reservations"
@@ -22,10 +22,16 @@ export default function ClientsPage() {
         setLoading(true);
 
         // Récupération des clients
+        if (!token) {
+          throw new Error("Token is required");
+        }
         const clientsResponse = await ReservationService.getClients(token);
-        setClients(clientsResponse);
+        setClients(Array.isArray(clientsResponse) ? clientsResponse : [clientsResponse]);
 
         // Récupération des stats pour le graphique
+        if (!token) {
+          throw new Error("Token is required");
+        }
         const distributionResponse = await ReservationService.getReservationsDistribution(token);
         const chartData = distributionResponse.map(item => ({
           username: item.username,
@@ -48,8 +54,8 @@ export default function ClientsPage() {
     username: client.username,
     email: client.email,
     reservations_count: client.reservations_count,
-    total_spent: client.total_spent,
-    last_reservation_date: client.last_reservation_date
+    total_spent: parseFloat(client.total_spent),
+    last_reservation_date: client.last_reservation_date || "N/A"
   }));
 
   return (
@@ -87,7 +93,7 @@ export default function ClientsPage() {
                       <TableCell className="font-medium">{client.username}</TableCell>
                       <TableCell>{client.email}</TableCell>
                       <TableCell>{client.reservations_count}</TableCell>
-                      <TableCell>{client.total_spent?.toLocaleString('fr-FR')} €</TableCell>
+                      <TableCell>{client.total_spent} €</TableCell>
                     </TableRow>
                   ))
                 ) : (
@@ -118,10 +124,7 @@ export default function ClientsPage() {
 
       {/* Section AI Insights */}
       {!loading && clients.length > 0 && (
-        <AIInsights
-          data={clientsData}
-          pageType="clients"
-        />
+        <ClientInsights clients={clientsData} />
       )}
     </div>
   )
