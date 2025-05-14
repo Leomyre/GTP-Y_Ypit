@@ -54,14 +54,13 @@ export default function RechercheVoyages() {
 
     // Appliquer les filtres
     filtered = filtered.filter((voyage) => {
-      const prixNum = parseFloat(voyage.prix) // important
+      const prixNum = parseFloat(voyage.prix)
       return (
         prixNum >= filtres.prixMin &&
         prixNum <= filtres.prixMax &&
         (filtres.confort === "" || voyage.niveau_confort === Number(filtres.confort))
       )
     })
-
 
     // Tri
     filtered.sort((a, b) => {
@@ -94,10 +93,30 @@ export default function RechercheVoyages() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">
+          Erreur
+        </h1>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Erreur : </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Réessayer
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-blue-600 dark:text-blue-400">
-        Résultats de recherche pour &quot;{searchQuery}&quot;
+        {searchQuery ? `Résultats de recherche pour "${searchQuery}"` : "Tous nos voyages"}
       </h1>
 
       <VoyageFilters onFilterChange={handleFilterChange} />
@@ -109,8 +128,6 @@ export default function RechercheVoyages() {
           <span className="font-medium ml-2">Confort :</span> {filtres.confort ? "★".repeat(Number(filtres.confort)) : "Tous"}
         </p>
       </div>
-
-
 
       {resultats.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

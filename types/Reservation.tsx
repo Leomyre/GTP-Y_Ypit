@@ -37,6 +37,21 @@ export interface Reservation {
 }
 
 // Interface pour un paiement
+export interface ReservationCardProps {
+    reservation: {
+        id: number;
+        voyage: {
+            id: number;
+            titre: string;
+            destination_nom: string;
+            destination: string;
+            date_depart: string;
+        };
+        statut: string;
+        prix_total: number;
+        reference?: string
+    }
+}
 export interface Paiement {
     id: number;
     reservation: number; // ID de la réservation

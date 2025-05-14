@@ -8,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Plane, CreditCard, TrendingUp } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
+import { Stats, RevenusData } from "@/types/Dashboard"
 
 export default function Dashboard() {
   const { token } = useAuth()
   const router = useRouter()
-  const [stats, setStats] = useState<any>(null)
-  const [revenusData, setRevenusData] = useState<any>(null)
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [revenusData, setRevenusData] = useState<RevenusData[]>([]);
 
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function Dashboard() {
     return;
   }
 
+
   if (!stats) {
     return <div>Chargement...</div>
   }
@@ -42,7 +44,7 @@ export default function Dashboard() {
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Réservations totales"
-          value={stats.total_reservations}
+          value={stats.total_reservations.toString()}
           icon={<Plane />}
           trend=""
         />

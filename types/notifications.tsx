@@ -6,7 +6,10 @@ export interface Notification {
     notification_type: string;
     read: boolean;
     created_at: string;
-    metadata?: Record<string, unknown>;
+    metadata?: {
+        link?: string;
+        [key: string]: unknown;
+    };
 }
 
 export interface PaginatedResponse<T> {
@@ -20,3 +23,11 @@ export interface MarkAsReadResponse {
     marked: number;
     unread_count: number;
 }
+
+export type NotificationType =
+    | "promotion"
+    | "reservation"
+    | "reminder"
+    | "new_feature"
+    | "info"
+    | "alert";

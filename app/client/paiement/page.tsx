@@ -1,5 +1,18 @@
 "use client";
 
+import { Suspense } from 'react';
+import PaiementSkeleton from '@/components/skeletons/paiement-skeleton';
+
+export const dynamic = 'force-dynamic';
+
+export default function Paiement() {
+  return (
+    <Suspense fallback={<PaiementSkeleton />}>
+      <InnerPaiement />
+    </Suspense>
+  );
+}
+
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +32,7 @@ import { Voyage } from "@/types/voyages"
 import { useReservation } from "@/hooks/useReservation";
 import { usePaiement } from "@/hooks/usePaiement";
 
-export default function Paiement() {
+function InnerPaiement() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const voyageId = searchParams.get("voyageId");

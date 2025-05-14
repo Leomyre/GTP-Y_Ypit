@@ -36,6 +36,7 @@ export default function AddTourOperator() {
       toast({
         title: "Tour Opérateur ajouté",
         description: "Le nouveau Tour Opérateur a été ajouté avec succès !",
+        createdAt: Date.now()
       })
       router.push("/responsable/tour/dashboard")
     }, 1000)

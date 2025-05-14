@@ -47,12 +47,14 @@ export default function ClientRegister() {
         title: "Erreur",
         description: "Les mots de passe ne correspondent pas.",
         variant: "destructive",
+        createdAt: Date.now()
       })
       return
     }
 
     // Créer un objet avec le format exact attendu par le backend
     const registerData = {
+      name: formData.username, // Use username as the name field
       email: formData.email,
       username: formData.username,
       password: formData.password,
@@ -75,16 +77,17 @@ export default function ClientRegister() {
       toast({
         title: "Inscription réussie",
         description: "Vérifiez votre email pour activer votre compte.",
+        createdAt: Date.now()
       })
 
       router.push("/client/auth/verify-email?email=" + encodeURIComponent(formData.email))
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erreur d'inscription:", error)
 
       // Afficher un message d'erreur plus précis
       let errorMessage = "Une erreur est survenue lors de l'inscription."
 
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         errorMessage = error.message
       }
 
@@ -92,6 +95,7 @@ export default function ClientRegister() {
         title: "Erreur d'inscription",
         description: errorMessage,
         variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }

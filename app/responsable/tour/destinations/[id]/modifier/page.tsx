@@ -37,6 +37,9 @@ export default function ModifierDestinationPage() {
         /* if (!id || !token) return */
         const fetchDestination = async () => {
             try {
+                if (!id || !token) {
+                    throw new Error("Invalid destination ID");
+                }
                 const destination = await DestinationService.getDestinationById(id, token)
                 setForm({
                     nom: destination.nom || "",
@@ -48,16 +51,17 @@ export default function ModifierDestinationPage() {
                 })
                 console.log(destination);
 
-            } catch (err) {
+            } catch {
                 toast({
                     variant: "destructive",
                     title: "Erreur",
                     description: "Impossible de charger la destination.",
+                    createdAt: Date.now()
                 })
             }
         }
         fetchDestination()
-    }, [id, token])
+    }, [id, token, toast])
 
     useEffect(() => {
         const handleMapClick = (e: Event) => {
@@ -111,6 +115,7 @@ export default function ModifierDestinationPage() {
             toast({
                 title: "Destination modifiée",
                 description: `${form.nom} a été mise à jour avec succès.`,
+                createdAt: Date.now()
             })
             router.push("tour/destinations")
         } catch (err) {
@@ -119,6 +124,7 @@ export default function ModifierDestinationPage() {
                 variant: "destructive",
                 title: "Erreur",
                 description: "Impossible de modifier la destination.",
+                createdAt: Date.now()
             })
         } finally {
             setLoading(false)

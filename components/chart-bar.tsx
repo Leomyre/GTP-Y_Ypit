@@ -18,8 +18,7 @@ export function ChartBar({ data }: { data: { nom_destination: string; total: num
   const chartData = data?.map(item => ({
     destination: item.nom_destination,
     ca: item.total,
-  })) || [];
-  console.log(chartData);
+  }));
 
 
   return (

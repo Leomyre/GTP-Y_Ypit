@@ -66,17 +66,16 @@ export default function AjouterDestinationPage() {
         if (!token) return
 
         try {
-            const formData = new FormData()
-            formData.append("nom", form.nom)
-            formData.append("pays", form.pays)
-            formData.append("description", form.description)
-            formData.append("latitude", form.latitude)
-            formData.append("longitude", form.longitude)
-            if (form.image) {
-                formData.append("image", form.image)
+            const createDestinationPayload = {
+                nom: form.nom,
+                pays: form.pays,
+                description: form.description,
+                latitude: form.latitude,
+                longitude: form.longitude,
+                image: form.image, // Ensure the backend supports handling this field
             }
 
-            await DestinationService.createDestination(formData, token)
+            await DestinationService.createDestination(createDestinationPayload, token)
             toast({
                 title: "Destination ajoutée",
                 description: `${form.nom} a été enregistrée avec succès.`,

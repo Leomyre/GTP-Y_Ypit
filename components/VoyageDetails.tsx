@@ -42,7 +42,9 @@ export function VoyageDetails() {
             }
 
             const voyagesRecents = voyagesConsultes
-                .sort((a: any, b: any) => new Date(b.date_consultation).getTime() - new Date(a.date_consultation).getTime())
+                .sort((a: { date_consultation: string }, b: { date_consultation: string }) =>
+                    new Date(b.date_consultation).getTime() - new Date(a.date_consultation).getTime()
+                )
                 .slice(0, 10);
 
             localStorage.setItem("voyagesConsultes", JSON.stringify(voyagesRecents));
@@ -116,7 +118,7 @@ export function VoyageDetails() {
                         <InfoItem icon={DollarSign} text={`${voyage.prix} € par personnes`} />
                     </div>
 
-                    <SectionDescription title="Description" content={voyage.description} />
+                    <SectionDescription title="Description" content={voyage.description || ""} />
                     {/* <Section title="Ce qui est inclus" list={voyage.inclus} /> */}
                     <Section
                         title="Programme"
@@ -140,7 +142,7 @@ export function VoyageDetails() {
     );
 }
 
-function InfoItem({ icon: Icon, text }: { icon: any; text: string }) {
+function InfoItem({ icon: Icon, text }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; text: string }) {
     return (
         <div className="flex items-center">
             <Icon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -149,7 +151,7 @@ function InfoItem({ icon: Icon, text }: { icon: any; text: string }) {
     );
 }
 
-function Section({ title, content, list, programme }: any) {
+function Section({ title, content, list, programme }: { title: string; content?: string; list?: string[]; programme?: React.ReactNode }) {
     return (
         <div className="mt-6">
             <h3 className="font-semibold mb-2 text-base sm:text-lg">{title}</h3>

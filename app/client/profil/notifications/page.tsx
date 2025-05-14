@@ -11,7 +11,6 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useNotifications } from "@/hooks/useNotifications"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Notification } from "@/types/notifications"
 
 const FILTER_OPTIONS = ["all", "unread", "promotion", "reservation", "reminder", "new_feature", "info", "alert"] as const
 
@@ -23,7 +22,7 @@ const NotificationClient = () => {
     loading,
     error,
     markAsRead,
-    markAllAsRead,
+    // markAllAsRead,
     refresh
   } = useNotifications()
   const [filter, setFilter] = useState<typeof FILTER_OPTIONS[number]>("all")
@@ -73,18 +72,24 @@ const NotificationClient = () => {
 
   const handleMarkAsRead = async (id: number) => {
     try {
-      await markAsRead(id)
+      await markAsRead({ id })
       setLocalError(null)
     } catch (err) {
+      console.log(err);
+
       setLocalError("Échec de la mise à jour de la notification")
     }
   }
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead()
+      const unreadNotifications = notifications.filter(notification => !notification.read)
+      for (const notification of unreadNotifications) {
+        await markAsRead({ id: notification.id })
+      }
       setLocalError(null)
     } catch (err) {
+      console.log(err);
       setLocalError("Échec de la mise à jour des notifications")
     }
   }
@@ -238,16 +243,6 @@ const NotificationClient = () => {
               </CardHeader>
               <CardContent>
                 <p className="whitespace-pre-line">{notification.message}</p>
-                {notification.metadata?.link && (
-                  <a
-                    href={notification.metadata.link}
-                    className="text-teal-600 hover:underline mt-2 inline-block"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Voir plus
-                  </a>
-                )}
                 <div className="flex justify-end mt-4">
                   {!notification.read && (
                     <Button

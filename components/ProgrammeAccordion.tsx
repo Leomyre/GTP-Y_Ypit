@@ -18,7 +18,7 @@ export function ProgrammeAccordion({ programme, isResponsable = false, voyageId 
                 <div key={jour.id} className="border rounded-lg overflow-hidden shadow-sm bg-gray-50 dark:bg-gray-800 transition-all">
                     <button
                         className="flex justify-between items-center w-full p-4 font-bold text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                        onClick={() => toggleJour(jour.id)}
+                        onClick={() => jour.id !== undefined && toggleJour(jour.id)}
                     >
                         <span>
                             Jour {jour.jour} : {jour.titre}

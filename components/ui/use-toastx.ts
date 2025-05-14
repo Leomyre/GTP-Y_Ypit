@@ -4,20 +4,18 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 
+type ToastVariant = "default" | "destructive" | "success" | "warning" | "info"
+
 export type ToastProps = {
   id?: string
   title?: string
   description?: string
   action?: React.ReactNode
   actionAltText?: string
-  variant?: "default" | "destructive" | "success" | "warning" | "info"
+  variant?: ToastVariant
   duration?: number
 }
 
-type ToastActionElement = React.ReactElement<{
-  altText: string
-  onClick: () => void
-}>
 
 export type Toast = ToastProps & {
   id: string
@@ -25,7 +23,6 @@ export type Toast = ToastProps & {
 }
 
 const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000
 
 type ToasterToast = Toast & {
   height?: number
@@ -69,8 +66,6 @@ type Action =
 interface State {
   toasts: ToasterToast[]
 }
-
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {

@@ -44,6 +44,7 @@ const ParametresClient = () => {
     toast({
       title: "Paramètres sauvegardés",
       description: "Vos préférences ont été mises à jour avec succès.",
+      createdAt: Date.now()
     })
   }
 

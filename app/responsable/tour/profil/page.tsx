@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,7 @@ import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload"
 import { withAuth } from "@/components/withAuth"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
-import { History, Eye, Bell, LogOut, Settings } from "lucide-react"
+import { LogOut } from "lucide-react"
 
 const ProfilResponsable = () => {
   const [profile, setProfile] = useState({
@@ -42,7 +42,15 @@ const ProfilResponsable = () => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
-  const handlePhotoChange = (file: File) => {
+  const handlePhotoChange = (file: File | null) => {
+    if (!file) {
+      toast({
+        title: "Profil non mis à jour",
+        description: "Photo de profil non adapté.",
+        createdAt: Date.now()
+      })
+      return
+    } // Handle the case where file is null
     // Ici, vous devriez implémenter la logique pour uploader la photo
     console.log("Nouvelle photo de profil:", file.name)
     // Pour l'exemple, on simule juste un changement d'URL
@@ -58,21 +66,22 @@ const ProfilResponsable = () => {
         username: profile.username,
         email: profile.email,
         phone_number: profile.phone_number,
-        // Ajouter d'autres champs si nécessaire
+        photoUrl: profile.photoUrl
       }
 
       await updateProfile(profileUpdateData)
       toast({
         title: "Profil mis à jour",
         description: "Vos informations ont été enregistrées avec succès.",
+        createdAt: Date.now()
       })
-    } catch (error: any) {
+    } catch (error) {
       let errorMessage = "Une erreur est survenue lors de la mise à jour du profil."
 
       // Gérer les erreurs spécifiques
-      if (error.message.includes("email")) {
+      if (error instanceof Error && error.message.includes("email")) {
         errorMessage = "Cet email est déjà utilisé ou invalide."
-      } else if (error.message.includes("Non authentifié")) {
+      } else if (error instanceof Error && error.message.includes("Non authentifié")) {
         errorMessage = "Votre session a expiré. Veuillez vous reconnecter."
         router.push("/client/auth/login")
       }
@@ -81,6 +90,7 @@ const ProfilResponsable = () => {
         title: "Erreur",
         description: errorMessage,
         variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }
@@ -99,7 +109,7 @@ const ProfilResponsable = () => {
     <div className="container mx-auto px-4 py-8 space-y-6">
       {/* En-tête avec le titre et le bouton de déconnexion */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-green-600 dark:text-green-400">Mon Profil</h1>
+        <h1 className="text-3xl font-bold text-green-600 dark:text-green-400">Profil Responsable</h1>
         <Button
           variant="outline"
           className="flex items-center text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"

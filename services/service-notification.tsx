@@ -4,27 +4,14 @@ import { Notification, PaginatedResponse, MarkAsReadResponse } from "@/types/not
 
 const BASE_URL = `${UrlConfig.apiBaseUrl}/notifications/notifications/`;
 
-const getAuthToken = (): string => {
-    if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-            throw new Error("No authentication token found");
-        }
-        return token;
-    }
-    throw new Error("Window object is not available");
-};
-
 export const NotificationService = {
-    async getNotifications(params?: {
+    async getNotifications(token: string, params?: {
         read?: boolean;
         type?: string;
         limit?: number;
         offset?: number;
     }): Promise<PaginatedResponse<Notification>> {
         try {
-            const token = getAuthToken();
-
             // Construction des paramètres de requête
             const queryParams = new URLSearchParams();
 
@@ -61,9 +48,8 @@ export const NotificationService = {
         }
     },
 
-    async getUnreadCount(): Promise<{ count: number }> {
+    async getUnreadCount(token: string): Promise<{ count: number }> {
         try {
-            const token = getAuthToken();
             const response = await axios.get<{ count: number }>(
                 `${BASE_URL}unread_count/`,
                 {
@@ -79,9 +65,8 @@ export const NotificationService = {
         }
     },
 
-    async markAsRead(options: { id?: number; ids?: number[]; all?: boolean }): Promise<MarkAsReadResponse> {
+    async markAsRead(token: string, options: { id?: number; ids?: number[]; all?: boolean }): Promise<MarkAsReadResponse> {
         try {
-            const token = getAuthToken();
             const response = await axios.patch<MarkAsReadResponse>(
                 `${BASE_URL}mark_as_read/`,
                 {
@@ -103,9 +88,8 @@ export const NotificationService = {
         }
     },
 
-    async markOneAsRead(notificationId: number): Promise<{ status: string; unread_count: number }> {
+    async markOneAsRead(token: string, notificationId: number): Promise<{ status: string; unread_count: number }> {
         try {
-            const token = getAuthToken();
             const response = await axios.patch<{ status: string; unread_count: number }>(
                 `${BASE_URL}${notificationId}/mark_one_as_read/`,
                 {},
@@ -122,7 +106,7 @@ export const NotificationService = {
         }
     },
 
-    async createNotification(data: {
+    async createNotification(token: string, data: {
         user_id: number;
         title: string;
         message: string;
@@ -130,7 +114,6 @@ export const NotificationService = {
         metadata?: object;
     }): Promise<Notification> {
         try {
-            const token = getAuthToken();
             const response = await axios.post<Notification>(
                 BASE_URL,
                 data,

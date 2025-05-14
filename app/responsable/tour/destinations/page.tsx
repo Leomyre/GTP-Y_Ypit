@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toastx"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { useAuth } from "@/hooks/useAuth"
+import RevenueDashboard from "@/components/DestinationRevenu"
 
 export default function DestinationsPage() {
   const router = useRouter()
@@ -220,7 +221,7 @@ export default function DestinationsPage() {
                         <div
                           key={voyage.id}
                           className="p-3 border rounded-md cursor-pointer hover:bg-muted"
-                          onClick={() => router.push(`/voyages/${voyage.id}`)}
+                          onClick={() => router.push(`/responsable/tour/voyages/${voyage.id}`)}
                         >
                           <p className="font-medium">{voyage.titre}</p>
                           <p className="text-sm text-muted-foreground">
@@ -240,6 +241,9 @@ export default function DestinationsPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+      <div className="mt-6">
+        <RevenueDashboard />
       </div>
     </div>
   )

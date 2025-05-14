@@ -28,6 +28,7 @@ const AvisVoyage = () => {
         title: "Erreur",
         description: "Veuillez attribuer une note au voyage",
         variant: "destructive",
+        createdAt: Date.now()
       })
       return
     }
@@ -44,14 +45,18 @@ const AvisVoyage = () => {
       toast({
         title: "Avis envoyé",
         description: "Merci pour votre avis sur ce voyage !",
+        createdAt: Date.now()
       })
 
       router.push(`/client/voyage/${id}`)
     } catch (error) {
+      console.log(error);
+
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'envoi de votre avis",
         variant: "destructive",
+        createdAt: Date.now()
       })
     } finally {
       setIsSubmitting(false)

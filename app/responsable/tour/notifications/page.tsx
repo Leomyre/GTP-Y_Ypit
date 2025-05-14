@@ -1,18 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bell, TrendingUp, Star, Lightbulb, Check, Calendar, Users, MessageSquare } from "lucide-react"
+import { Bell, TrendingUp, Lightbulb, Check, Calendar } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/use-toastx"
 import { NotificationService } from "@/services/service-notification"
 import { useAuth } from "@/hooks/useAuth"
+import axios from "axios"
 import { Notification, NotificationType } from "@/types/notifications"
 
 export default function NotificationsPage() {
@@ -34,16 +34,21 @@ export default function NotificationsPage() {
         const notificationsResponse = await NotificationService.getNotifications(token, {
           type: activeTab === "all" ? undefined : activeTab
         })
+        console.log(notificationsResponse);
+
         setNotifications(notificationsResponse.results)
 
         // Charger le compte des non-lues
         const countResponse = await NotificationService.getUnreadCount(token)
         setUnreadCount(countResponse.count)
       } catch (error) {
+        console.log(error);
+
         toast({
           title: "Erreur",
           description: "Impossible de charger les notifications",
-          variant: "destructive"
+          variant: "destructive",
+          createdAt: Date.now()
         })
       } finally {
         setLoading(false)
@@ -61,25 +66,35 @@ export default function NotificationsPage() {
       )
       setUnreadCount(prev => prev - 1)
     } catch (error) {
+      console.log(error);
+
       toast({
         title: "Erreur",
         description: "Impossible de marquer la notification comme lue",
-        variant: "destructive"
+        variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }
 
   const markAllAsRead = async () => {
     try {
-      await NotificationService.markAsRead(token, { all: true })
+      if (token) {
+        await NotificationService.markAsRead(token, { all: true })
+      } else {
+        throw new Error("Authentication token is missing");
+      }
       setNotifications(prev =>
         prev.map(notif => ({ ...notif, read: true })))
       setUnreadCount(0)
     } catch (error) {
+      console.log(error);
+
       toast({
         title: "Erreur",
         description: "Impossible de marquer toutes les notifications comme lues",
-        variant: "destructive"
+        variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }

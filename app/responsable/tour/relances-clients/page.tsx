@@ -149,6 +149,7 @@ export default function RelancesClients() {
     toast({
       title: `Campagne ${newStatus === "active" ? "activée" : "désactivée"}`,
       description: `La campagne a été ${newStatus === "active" ? "activée" : "désactivée"} avec succès.`,
+      createdAt: Date.now()
     })
   }
 
@@ -159,6 +160,7 @@ export default function RelancesClients() {
     toast({
       title: "Campagne supprimée",
       description: "La campagne a été supprimée avec succès.",
+      createdAt: Date.now()
     })
   }
 
@@ -169,6 +171,7 @@ export default function RelancesClients() {
     toast({
       title: "Modèle sauvegardé",
       description: "Le modèle a été sauvegardé avec succès.",
+      createdAt: Date.now()
     })
 
     setIsEditing(false)
@@ -181,6 +184,7 @@ export default function RelancesClients() {
     toast({
       title: "Campagne créée",
       description: "La nouvelle campagne a été créée avec succès.",
+      createdAt: Date.now()
     })
 
     // Réinitialiser le formulaire
@@ -230,7 +234,7 @@ export default function RelancesClients() {
       <Tabs defaultValue="campagnes" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="campagnes">Campagnes</TabsTrigger>
-          <TabsTrigger value="modeles">Modèles d'emails</TabsTrigger>
+          <TabsTrigger value="modeles">Modèles d&aposemails</TabsTrigger>
           <TabsTrigger value="nouvelle">Nouvelle campagne</TabsTrigger>
         </TabsList>
 
@@ -250,7 +254,7 @@ export default function RelancesClients() {
                     <TableHead>Statut</TableHead>
                     <TableHead>Délai</TableHead>
                     <TableHead>Destinataires</TableHead>
-                    <TableHead>Taux d'ouverture</TableHead>
+                    <TableHead>Taux d&aposouverture</TableHead>
                     <TableHead>Taux de conversion</TableHead>
                     <TableHead>Prochaine exécution</TableHead>
                     <TableHead>Actions</TableHead>
@@ -384,7 +388,7 @@ export default function RelancesClients() {
                         <dd>{campagnes.find((c) => c.id === selectedCampagne)?.destinataires || 0}</dd>
                       </div>
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Taux d'ouverture :</dt>
+                        <dt className="text-muted-foreground">Taux d&aposouverture :</dt>
                         <dd>
                           {campagnes.find((c) => c.id === selectedCampagne)?.taux_ouverture !== null
                             ? `${campagnes.find((c) => c.id === selectedCampagne)?.taux_ouverture}%`
@@ -404,7 +408,7 @@ export default function RelancesClients() {
                 </div>
 
                 <div className="pt-4">
-                  <h3 className="text-lg font-medium mb-2">Modèle d'email utilisé</h3>
+                  <h3 className="text-lg font-medium mb-2">Modèle d&aposemail utilisé</h3>
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">
@@ -434,7 +438,7 @@ export default function RelancesClients() {
         <TabsContent value="modeles" className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">Modèles d'emails</h2>
+              <h2 className="text-xl font-semibold">Modèles d&aposemails</h2>
               <p className="text-muted-foreground">Gérez les modèles utilisés pour vos campagnes de relance</p>
             </div>
             <div className="flex space-x-2">
@@ -473,11 +477,11 @@ export default function RelancesClients() {
                 {isEditing ? (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="sujet">Sujet de l'email</Label>
+                      <Label htmlFor="sujet">Sujet de l&aposemail</Label>
                       <Input id="sujet" defaultValue={modeles.find((m) => m.id === selectedModele)?.sujet} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="contenu">Contenu de l'email</Label>
+                      <Label htmlFor="contenu">Contenu de l&aposemail</Label>
                       <Textarea
                         id="contenu"
                         rows={10}
@@ -492,13 +496,13 @@ export default function RelancesClients() {
                 ) : (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Sujet de l'email</Label>
+                      <Label>Sujet de l&aposemail</Label>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                         {modeles.find((m) => m.id === selectedModele)?.sujet}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Contenu de l'email</Label>
+                      <Label>Contenu de l&aposemail</Label>
                       <pre className="whitespace-pre-wrap p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                         {modeles.find((m) => m.id === selectedModele)?.contenu}
                       </pre>
@@ -515,7 +519,7 @@ export default function RelancesClients() {
                 <Mail className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg font-medium">Aucun modèle sélectionné</p>
                 <p className="text-muted-foreground mb-6">
-                  Veuillez sélectionner un modèle d'email pour afficher ses détails
+                  Veuillez sélectionner un modèle d&aposemail pour afficher ses détails
                 </p>
               </CardContent>
             </Card>
@@ -554,14 +558,14 @@ export default function RelancesClients() {
                       <SelectItem value="abandon">Panier abandonné</SelectItem>
                       <SelectItem value="promotion">Promotion</SelectItem>
                       <SelectItem value="rappel">Rappel</SelectItem>
-                      <SelectItem value="avis">Demande d'avis</SelectItem>
+                      <SelectItem value="avis">Demande d&aposavis</SelectItem>
                       <SelectItem value="fidelite">Fidélité</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="modele">Modèle d'email</Label>
+                  <Label htmlFor="modele">Modèle d&aposemail</Label>
                   <Select
                     value={newCampagne.modele_id}
                     onValueChange={(value) => setNewCampagne({ ...newCampagne, modele_id: value })}
@@ -581,7 +585,7 @@ export default function RelancesClients() {
 
                 {newCampagne.type !== "promotion" && (
                   <div className="space-y-2">
-                    <Label htmlFor="delai">Délai d'envoi (en heures)</Label>
+                    <Label htmlFor="delai">Délai d&aposenvoi (en heures)</Label>
                     <Input
                       id="delai"
                       type="number"
@@ -590,14 +594,14 @@ export default function RelancesClients() {
                       onChange={(e) => setNewCampagne({ ...newCampagne, delai: e.target.value })}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Délai après lequel l'email sera envoyé automatiquement
+                      Délai après lequel l&aposemail sera envoyé automatiquement
                     </p>
                   </div>
                 )}
 
                 {newCampagne.type === "promotion" && (
                   <div className="space-y-2">
-                    <Label>Date d'envoi</Label>
+                    <Label>Date d&aposenvoi</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="w-full justify-start text-left font-normal">

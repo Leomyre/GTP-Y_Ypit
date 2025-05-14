@@ -54,7 +54,34 @@ export const DestinationService = {
         });
     },
 
-    getRevenueStats: async (): Promise<DestinationRevenueStats> => {
+    getRevenueStats: async (): Promise<{
+        success: boolean;
+        data?: {
+            totalRevenue: number;
+            byDestination: Array<{
+                id: number;
+                name: string;
+                country: string;
+                adultReservations: number;
+                childReservations: number;
+                adultRevenue: number;
+                childRevenue: number;
+                totalRevenue: number;
+            }>;
+            byCountry: Array<{
+                country: string;
+                totalRevenue: number;
+                destinationCount: number;
+                voyageCount: number;
+            }>;
+            monthlyTrend: Array<{
+                month: string;
+                totalRevenue: number;
+                reservationCount: number;
+            }>;
+        };
+        error?: string;
+    }> => {
         try {
             const response = await axios.get(`${UrlConfig.apiBaseUrl}/voyages/destinations/revenue_stats/`);
 
@@ -66,16 +93,25 @@ export const DestinationService = {
                 success: true,
                 data: {
                     totalRevenue: response.data.data.total_revenue || 0,
-                    byDestination: response.data.data.by_destination.map((item: {
+                    byDestination: (response.data.data.by_destination || []).map((item: {
                         id: number;
                         nom: string;
                         pays: string;
-                        adult_reservations?: number;
-                        child_reservations?: number;
-                        adult_revenue?: number;
-                        child_revenue?: number;
-                        total_revenue?: number;
-                    }) => ({
+                        adult_reservations: number;
+                        child_reservations: number;
+                        adult_revenue: number;
+                        child_revenue: number;
+                        total_revenue: number;
+                    }): {
+                        id: number;
+                        name: string;
+                        country: string;
+                        adultReservations: number;
+                        childReservations: number;
+                        adultRevenue: number;
+                        childRevenue: number;
+                        totalRevenue: number;
+                    } => ({
                         id: item.id,
                         name: item.nom,
                         country: item.pays,
@@ -85,18 +121,31 @@ export const DestinationService = {
                         childRevenue: item.child_revenue || 0,
                         totalRevenue: item.total_revenue || 0
                     })),
-                    byCountry: response.data.data.by_country.map((item: {
+                    byCountry: (response.data.data.by_country || []).map((item: {
                         pays: string;
-                        total_revenue?: number;
-                        destination_count?: number;
-                        voyage_count?: number;
-                    }) => ({
+                        total_revenue: number;
+                        destination_count: number;
+                        voyage_count: number;
+                    }): {
+                        country: string;
+                        totalRevenue: number;
+                        destinationCount: number;
+                        voyageCount: number;
+                    } => ({
                         country: item.pays,
                         totalRevenue: item.total_revenue || 0,
                         destinationCount: item.destination_count || 0,
                         voyageCount: item.voyage_count || 0
                     })),
-                    monthlyTrend: response.data.data.monthly_trend.map((item: { month: string; total_revenue?: number; reservation_count?: number }) => ({
+                    monthlyTrend: (response.data.data.monthly_trend || []).map((item: {
+                        month: string;
+                        total_revenue: number;
+                        reservation_count: number;
+                    }): {
+                        month: string;
+                        totalRevenue: number;
+                        reservationCount: number;
+                    } => ({
                         month: item.month,
                         totalRevenue: item.total_revenue || 0,
                         reservationCount: item.reservation_count || 0
@@ -112,34 +161,4 @@ export const DestinationService = {
         }
     }
 };
-
-// Types TypeScript
-interface DestinationRevenueStats {
-    success: boolean;
-    data?: {
-        totalRevenue: number;
-        byDestination: Array<{
-            id: number;
-            name: string;
-            country: string;
-            adultReservations: number;
-            childReservations: number;
-            adultRevenue: number;
-            childRevenue: number;
-            totalRevenue: number;
-        }>;
-        byCountry: Array<{
-            country: string;
-            totalRevenue: number;
-            destinationCount: number;
-            voyageCount: number;
-        }>;
-        monthlyTrend: Array<{
-            month: string;
-            totalRevenue: number;
-            reservationCount: number;
-        }>;
-    };
-    error?: string;
-}
 

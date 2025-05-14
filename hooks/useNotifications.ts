@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { NotificationService } from '@/services/service-notification';
 import { useAuth } from './useAuth';
-import { Notification, PaginatedResponse, MarkAsReadResponse } from '@/types/notifications';
+import { Notification, MarkAsReadResponse } from '@/types/notifications';
 
 interface NotificationPagination {
   count: number;
@@ -74,7 +74,7 @@ export const useNotifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, pagination.limit]);
+  }, [token, pagination.limit, pagination.offset]);
 
   const markAsRead = useCallback(async (options: { id?: number; ids?: number[]; all?: boolean }): Promise<MarkAsReadResponse> => {
     if (!token) throw new Error('Authentication required');

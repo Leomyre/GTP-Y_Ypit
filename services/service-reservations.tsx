@@ -7,6 +7,8 @@ import {
     PaginatedResponse,
 
 } from "@/types/Reservation";
+
+import { VoyageWithStats } from "@/types/voyages";
 import { Client } from "@/types/users";
 
 const BASE_URL = `${UrlConfig.apiBaseUrl}/reservations/`;

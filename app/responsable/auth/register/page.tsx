@@ -45,6 +45,7 @@ export default function ResponsableRegister() {
         title: "Erreur",
         description: "Les mots de passe ne correspondent pas.",
         variant: "destructive",
+        createdAt: Date.now()
       })
       return
     }
@@ -56,6 +57,7 @@ export default function ResponsableRegister() {
       toast({
         title: "Inscription réussie",
         description: "Votre compte responsable a été créé avec succès !",
+        createdAt: Date.now()
       })
       router.push("/responsable/auth/login")
     }, 1000)

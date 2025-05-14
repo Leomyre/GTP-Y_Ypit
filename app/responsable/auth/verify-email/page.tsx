@@ -25,13 +25,17 @@ export default function VerifyEmail() {
       toast({
         title: "Email vérifié",
         description: "Votre compte a été activé avec succès.",
+        createdAt: Date.now()
       })
       router.push("/client/auth/login")
     } catch (error) {
+      console.log(error);
+
       toast({
         title: "Erreur de vérification",
         description: "Le code de vérification est incorrect ou a expiré.",
         variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }

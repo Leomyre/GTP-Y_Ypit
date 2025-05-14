@@ -34,15 +34,16 @@ export default function VerifyEmail() {
       toast({
         title: "Email vérifié",
         description: "Votre compte a été activé avec succès.",
+        createdAt: Date.now()
       })
       router.push("/client/auth/login")
-    } catch (error: any) {
+    } catch (error) {
       let errorMessage = "Le code de vérification est incorrect ou a expiré."
 
       // Gérer les erreurs spécifiques de l'API
-      if (error.message.includes("Utilisateur introuvable")) {
+      if (error instanceof Error && error.message.includes("Utilisateur introuvable")) {
         errorMessage = "Adresse email non reconnue."
-      } else if (error.message.includes("Code invalide")) {
+      } else if (error instanceof Error && error.message.includes("Code invalide")) {
         errorMessage = "Code de vérification incorrect."
       }
 
@@ -50,6 +51,7 @@ export default function VerifyEmail() {
         title: "Erreur de vérification",
         description: errorMessage,
         variant: "destructive",
+        createdAt: Date.now()
       })
     }
   }
