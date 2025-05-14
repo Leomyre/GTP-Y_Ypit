@@ -54,6 +54,8 @@ const generateReservationInsights = async (reservations: ReservationData[]): Pro
 }
 
 export function ReservationInsights({ reservations }: ReservationInsightsProps) {
+    console.log(reservations);
+
     return (
         <AIInsightBase
             data={reservations}

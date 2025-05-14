@@ -6,6 +6,7 @@ import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Home, Map, Users, CreditCard, Menu, X, Plane, BookOpen, User, Bell } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { DeviseSelector } from "@/components/DeviseSelector";
 
 const navItems = [
   { name: "Tableau de bord", href: "/responsable/tour/dashboard", icon: Home },
@@ -44,22 +45,24 @@ const NavbarResponsable = () => {
   )
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Navigation Desktop */}
-      <nav className="hidden sm:flex sm:flex-col w-64 bg-white dark:bg-gray-800 shadow-lg fixed h-full p-4">
+      <nav className="hidden lg:flex lg:flex-col w-64 bg-white dark:bg-gray-800 shadow-lg fixed h-full p-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Agence de Voyage</h1>
           <ThemeToggle />
         </div>
         <NavLinks />
+        <div><DeviseSelector /></div>
       </nav>
 
       {/* Contenu principal */}
-      <main className="flex-1 sm:ml-64">
+      <main className="flex-1 lg:ml-64">
         {/* Header Mobile */}
-        <div className="sm:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md fixed w-full top-0 z-50">
+        <div className="flex lg:hidden justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md fixed w-full top-0 z-50">
           <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">Agence de Voyage</h1>
           <div className="flex items-center space-x-2">
+            <DeviseSelector />
             <ThemeToggle />
             <button className="text-gray-700 dark:text-gray-200 focus:outline-none" onClick={() => setShowNav(true)}>
               <Menu className="w-6 h-6" />
@@ -69,7 +72,7 @@ const NavbarResponsable = () => {
 
         {/* Menu Mobile (Overlay + Barre latérale) */}
         {showNav && (
-          <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="fixed inset-0 z-50 lg:hidden">
             <div
               className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
               onClick={() => setShowNav(false)}

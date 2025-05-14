@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/hooks/useAuth"
+import { DeviseProvider } from "@/context/DeviseContext";
 import type React from "react"
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -46,8 +47,11 @@ export default function ResponsableTourLayout({ children }: { children: React.Re
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
-        <ProtectedLayout>{children}</ProtectedLayout>
+        <DeviseProvider>
+          <ProtectedLayout>{children}</ProtectedLayout>
+        </DeviseProvider>
       </AuthProvider>
     </ThemeProvider>
   )
 }
+

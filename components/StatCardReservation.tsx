@@ -1,8 +1,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ReactNode } from "react";
 
-export function StatCardReservation({ title, value, loading }: { title: string; value: string | number; loading: boolean }) {
+export function StatCardReservation({ title, value, loading }: { title: string; value: string | number | ReactNode; loading: boolean }) {
     return (
         <Card>
             <CardHeader>

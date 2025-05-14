@@ -8,23 +8,57 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Lightbulb, Star, TrendingUp, AlertCircle } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Insight } from "@/types/insights"
+import generateWithGemini from "@/services/service-gemini"
 
 interface AIInsightBaseProps<T> {
   data: T[]
   pageType: "clients" | "reservations" | "voyages"
   icon: React.ReactNode
-  generateInsights: (data: T[]) => Promise<Insight[]>
+  insights?: Insight[]
+  generateInsights?: (data: T[]) => Promise<Insight[]>
 }
 
 export function AIInsightBase<T>({
   data,
   pageType,
   icon,
-  generateInsights
 }: AIInsightBaseProps<T>) {
   const [insights, setInsights] = useState<Insight[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const generateInsights = async (data: T[]): Promise<Insight[]> => {
+    const prompt = `En tant qu'expert en analyse de données touristiques, génère 3 insights 
+    pertinents au format JSON strictement conforme au schéma suivant :
+
+    [{
+      "id": "unique-id",
+      "title": "Titre insight",
+      "description": "Description détaillée",
+      "priority": "high|medium|low",
+      "recommendation": "Action recommandée",
+      "metrics": [{
+        "name": "Nom métrique",
+        "value": "Valeur",
+        "change": "pourcentage"
+      }]
+    }]
+
+    Contexte: Analyse des ${pageType}
+    Données: ${JSON.stringify(data.slice(0, 5))}
+    `
+
+    try {
+      const response = await generateWithGemini(prompt)
+      const startIndex = response.indexOf('[')
+      const endIndex = response.lastIndexOf(']') + 1
+      const jsonString = response.slice(startIndex, endIndex)
+      return JSON.parse(jsonString)
+    } catch (err) {
+      console.error("Erreur de parsing:", err)
+      throw new Error("Erreur lors de l'analyse des résultats")
+    }
+  }
 
   const handleGenerate = async () => {
     setLoading(true)

@@ -20,8 +20,7 @@ export interface Reservation {
     };
     utilisateur: {
         id: number;
-        nom: string;
-        prenom: string;
+        username: string;
         email: string;
     };
     nombre_adultes: number;

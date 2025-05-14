@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import VoyageService from "@/services/service-voyages";
 import { StatCardReservation } from "@/components/StatCardReservation";
 import { ReservationInsights } from "@/components/ReservationInsights";
+import { PrixConverti } from "@/components/PrixConverti";
 
 export default function ResponsibleReservationsPage() {
   const { user, token } = useAuth();
@@ -27,16 +28,16 @@ export default function ResponsibleReservationsPage() {
   const [selectedVoyage, setSelectedVoyage] = useState<number | "all">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   // Formatage des données pour l'analyse IA
   const reservationsData = reservations.map(reservation => ({
     id: reservation.id,
     voyage: reservation.voyage.titre,
-    client: `${reservation.utilisateur.prenom} ${reservation.utilisateur.nom}`,
+    client: `${reservation.utilisateur.username}`,
     date: reservation.date_reservation,
     participants: reservation.nombre_adultes + reservation.nombre_enfants,
     montant: reservation.prix_total,
     statut: reservation.est_confirmee ? "confirmé" : reservation.statut_paiement
+
   }));
 
   const fetchData = useCallback(async () => {
@@ -59,6 +60,7 @@ export default function ResponsibleReservationsPage() {
       setError(null);
     } catch (err) {
       setError("Erreur lors du chargement des données.");
+      router.push("/responsable/auth/login")
       console.error(err);
     } finally {
       setLoading(false);
@@ -140,7 +142,7 @@ export default function ResponsibleReservationsPage() {
         />
         <StatCardReservation
           title="Chiffre d'Affaires"
-          value={`${stats?.chiffre_affaire?.toLocaleString('fr-FR') || 0} €`}
+          value={<PrixConverti prix={stats?.chiffre_affaire} deviseOrigine="EUR" />}
           loading={loading}
         />
       </div>
@@ -175,7 +177,16 @@ export default function ResponsibleReservationsPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip formatter={(value) => [`${value} €`, "CA"]} />
+                    <Tooltip
+                      formatter={(value: number) => [
+                        new Intl.NumberFormat(undefined, {
+                          style: "currency",
+                          currency: 'EUR',
+                        }).format(value),
+                        "CA", // Libellé dans la légende
+                      ]}
+                    />
+
                     <Legend />
                     <Bar dataKey="chiffreAffaire" fill="#82ca9d" />
                   </BarChart>
@@ -241,7 +252,7 @@ export default function ResponsibleReservationsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>{reservation.utilisateur.prenom} {reservation.utilisateur.nom}</div>
+                          <div>{reservation.utilisateur.username}</div>
                           <div className="text-xs text-muted-foreground">
                             {reservation.utilisateur.email}
                           </div>
@@ -257,7 +268,7 @@ export default function ResponsibleReservationsPage() {
                           {getStatusBadge(reservation)}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {reservation.prix_total.toLocaleString('fr-FR')} €
+                          <PrixConverti prix={reservation.prix_total} deviseOrigine="EUR" />
                         </TableCell>
                       </TableRow>
                     ))
