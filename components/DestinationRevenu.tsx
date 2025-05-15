@@ -61,10 +61,11 @@ const RevenueDashboard = () => {
     if (!stats) return <div>No data available</div>;
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-8">
+            {/* Statistiques principales */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCardDestination
-                    title="Revenue Total"
+                    title="Revenu Total"
                     value={`${(stats.data.totalRevenue ?? 0).toLocaleString()} €`}
                 />
                 <StatCardDestination
@@ -77,25 +78,28 @@ const RevenueDashboard = () => {
                 />
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            {/* Tableau des statistiques par destination */}
+            <div className="overflow-x-auto rounded-lg shadow">
+                <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
+                    <thead className="bg-gray-100 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                         <tr>
-                            <th>Destination</th>
-                            <th>Pays</th>
-                            <th>Nombres Adultes</th>
-                            <th>Nombres Enfants</th>
-                            <th>Revenue Total</th>
+                            <th className="px-4 py-3">Destination</th>
+                            <th className="px-4 py-3">Pays</th>
+                            <th className="px-4 py-3 text-right">Adultes</th>
+                            <th className="px-4 py-3 text-right">Enfants</th>
+                            <th className="px-4 py-3 text-right">Revenu Total</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-100">
                         {stats.data.byDestination?.map((item) => (
-                            <tr key={item.id}>
-                                <td>{item.nom}</td>
-                                <td>{item.pays}</td>
-                                <td>{item.adult_reservations}</td>
-                                <td>{item.child_reservations}</td>
-                                <td>{(item.total_revenue ?? 0).toLocaleString()} €</td>
+                            <tr key={item.id} className="hover:bg-gray-50 transition">
+                                <td className="px-4 py-2">{item.nom}</td>
+                                <td className="px-4 py-2">{item.pays}</td>
+                                <td className="px-4 py-2 text-right">{item.adult_reservations}</td>
+                                <td className="px-4 py-2 text-right">{item.child_reservations}</td>
+                                <td className="px-4 py-2 text-right">
+                                    {(item.total_revenue ?? 0).toLocaleString()} €
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -103,6 +107,7 @@ const RevenueDashboard = () => {
             </div>
         </div>
     );
+
 };
 
 export default RevenueDashboard;

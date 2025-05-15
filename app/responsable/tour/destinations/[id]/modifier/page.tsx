@@ -34,7 +34,6 @@ export default function ModifierDestinationPage() {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        /* if (!id || !token) return */
         const fetchDestination = async () => {
             try {
                 if (!id || !token) {
@@ -49,8 +48,6 @@ export default function ModifierDestinationPage() {
                     longitude: destination.longitude?.toString() || "",
                     image: undefined,
                 })
-                console.log(destination);
-
             } catch {
                 toast({
                     variant: "destructive",
@@ -117,7 +114,7 @@ export default function ModifierDestinationPage() {
                 description: `${form.nom} a été mise à jour avec succès.`,
                 createdAt: Date.now()
             })
-            router.push("tour/destinations")
+            router.push("/responsable/tour/destinations")
         } catch (err) {
             console.error(err)
             toast({
