@@ -18,7 +18,7 @@ export interface Voyage {
 export interface CreateVoyage {
     titre: string;
     prix: string;
-    image?: string;
+    images?: string;
     description?: string;
     ville_depart: string;
     niveau_confort: number;

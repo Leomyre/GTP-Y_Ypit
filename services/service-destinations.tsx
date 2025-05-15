@@ -16,11 +16,27 @@ export const DestinationService = {
     },
 
     createDestination: async (data: CreateDestination, token: string) => {
-        const res = await axios.post(`${UrlConfig.apiBaseUrl}/voyages/destinations/`, data, {
+        const formData = new FormData();
+
+        // Ajoutez chaque champ un par un
+        formData.append("nom", data.nom);
+        formData.append("pays", data.pays);
+        formData.append("latitude", data.latitude);
+        formData.append("longitude", data.longitude);
+        formData.append("description", data.description);
+
+        // Vérifiez si une image est présente
+        if (data.image) {
+            formData.append("image", data.image); // Assurez-vous que `data.image` est de type File
+        }
+
+        const res = await axios.post(`${UrlConfig.apiBaseUrl}/voyages/destinations/`, formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data', // utile mais axios le gère souvent automatiquement
             },
         });
+
         return res.data;
     },
 

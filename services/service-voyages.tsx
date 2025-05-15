@@ -91,12 +91,13 @@ export const VoyageService = {
 
 
     // Create a new voyage
-    createVoyage: async (voyageData: CreateVoyage, token: string) => {
+    createVoyage: async (formData: FormData, token: string) => {
+        console.log(formData);
+
         try {
-            const response = await axios.post(`${BASE_URL}/voyages/`, voyageData, {
+            const response = await axios.post(`${BASE_URL}/voyages/`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
                 }
             });
             return response.data;

@@ -27,6 +27,7 @@ export default function AjouterVoyage() {
     description: "",
     ville_depart: "",
     destination: "",
+    images: null,
     prix: "",
     niveau_confort: "1",
   });
@@ -85,20 +86,11 @@ export default function AjouterVoyage() {
     formDataToSend.append('niveau_confort', formData.niveau_confort);
 
     if (selectedImage) {
-      formDataToSend.append('image', selectedImage);
+      formDataToSend.append('images', selectedImage);
     }
 
     try {
-      const voyageData = {
-        titre: formData.titre,
-        description: formData.description,
-        ville_depart: formData.ville_depart,
-        destination: formData.destination,
-        prix: formData.prix,
-        niveau_confort: parseInt(formData.niveau_confort, 10),
-        image: selectedImage ? selectedImage.name : undefined, // Use file name or undefined
-      };
-      await VoyageService.createVoyage(voyageData, token);
+      await VoyageService.createVoyage(formDataToSend, token);
       router.push("/responsable/tour/voyages");
     } catch (err) {
       console.error("Erreur lors de la création du voyage:", err);

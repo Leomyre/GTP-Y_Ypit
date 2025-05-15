@@ -6,7 +6,7 @@ import { VoyageCard } from "@/components/VoyageCard"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { MapPin, BarChart2 } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { VoyageService } from "@/services/service-voyages"
 import { VoyageSkeleton } from "@/components/skeletons/voyage-skeleton"
 import { Voyage } from "@/types/voyages"
@@ -44,12 +44,6 @@ export default function ClientAccueil() {
     }
   }
 
-  const handleCompare = () => {
-    if (selectedVoyages.length > 0) {
-      router.push(`/client/comparaison?ids=${selectedVoyages.join(",")}`)
-    }
-  }
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -81,10 +75,6 @@ export default function ClientAccueil() {
           >
             <MapPin className="mr-2 h-4 w-4" />
             Carte des destinations
-          </Button>
-          <Button onClick={handleCompare} disabled={selectedVoyages.length === 0} className="flex items-center">
-            <BarChart2 className="mr-2 h-4 w-4" />
-            Comparer ({selectedVoyages.length}/3)
           </Button>
         </div>
       </div>

@@ -44,12 +44,9 @@ export function VoyageCard({ voyage }: VoyageCardProps) {
 
   return (
     <Card className="flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
-      {/* <div className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-full px-2 py-1 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 shadow">
-        {voyage.likes} ❤️
-      </div> */}
       <CardHeader className="p-0">
         <Image
-          src={voyage.images || "/placeholder.svg"}
+          src={voyage.images || "http://localhost:8000/voyages/b2df7fb10f2f2321750985e7977a04b8a5dc7c26r1-1280-720v2_hq_52GV00G.jpg"}
           alt={voyage.titre || "Image de voyage"}
           width={400}
           height={200}

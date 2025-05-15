@@ -81,7 +81,7 @@ export default function AjouterDestinationPage() {
                 description: `${form.nom} a été enregistrée avec succès.`,
                 createdAt: Date.now()
             })
-            router.push("/destinations")
+            router.push("/responsable/tour/destinations")
         } catch (err) {
             toast({
                 variant: "destructive",

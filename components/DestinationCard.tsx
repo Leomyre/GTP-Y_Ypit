@@ -31,7 +31,7 @@ export function DestinationCard({
         >
             <div className="relative h-40">
                 <Image
-                    src={destination.image || "/placeholder.svg"}
+                    src={destination.image || "http://localhost:8000/voyages/b2df7fb10f2f2321750985e7977a04b8a5dc7c26r1-1280-720v2_hq_52GV00G.jpg"}
                     alt={destination.nom}
                     fill
                     className="object-cover"
